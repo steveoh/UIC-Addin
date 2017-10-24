@@ -1,0 +1,56 @@
+﻿<ArcGIS defaultAssembly="UIC_testing_two.dll" defaultNamespace="UIC_testing_two" xmlns="http://schemas.esri.com/DADF/Registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.esri.com/DADF/Registry file:///C:/Program%20Files/ArcGIS/Pro/bin/ArcGIS.Desktop.Framework.xsd">
+  <AddInInfo id="{262e5e70-4fca-4e76-9ee2-adf5b2cca7c0}" version="1.0" desktopVersion="2.0.8933">
+    <Name>UIC_testing_two</Name>
+    <Description>UIC_testing_two description</Description>
+    <Image>Images\AddinDesktop32.png</Image>
+    <Author>kwalker</Author>
+    <Company>Microsoft</Company>
+    <Date>10/16/2017 1:04:42 PM, 2017</Date>
+    <Subject>Framework</Subject>
+    <!-- Note subject can be one or more of these topics:
+                    Content, Framework, Editing, Geodatabase, Geometry, Geoprocessing, Layouts, Map Authoring, Map Exploration -->
+  </AddInInfo>
+  <modules>
+    <insertModule id="UIC_testing_two_Module" className="Module1" autoLoad="false" caption="Module1">
+      <!-- uncomment to have the control hosted on a separate tab-->
+      <tabs>
+        <!--<tab id="UIC_testing_two_Tab1" caption="New Tab">
+          <group refID="UIC_testing_two_Group1"/>
+        </tab>-->
+      </tabs>
+      <groups>
+        <!-- comment this out if you have no controls on the Addin tab to avoid
+              an empty group-->
+        <group id="UIC_testing_two_Group1" caption="Group 1" appearsOnAddInTab="true">
+          <!-- host controls within groups -->
+          <button refID="UIC_testing_two_AttributeEditor_ShowButton" size="large" />
+          <button refID="UIC_testing_two_WorkFlowPane_ShowButton" size="large" />
+          <button refID="UIC_testing_two_WellAttributeEditor_ShowButton" size="large" />
+        </group>
+      </groups>
+      <controls>
+        <!-- add your controls here -->
+        <button id="UIC_testing_two_AttributeEditor_ShowButton" caption="Show Facility Attributes" className="AttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+          <tooltip heading="Show Dockpane">Show attribute editor<disabledText /></tooltip>
+        </button>
+        <button id="UIC_testing_two_WorkFlowPane_ShowButton" caption="Show UIC WorkFlow" className="WorkFlowPane_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+          <tooltip heading="Show Dockpane">Show Dockpane<disabledText /></tooltip>
+        </button>
+        <button id="UIC_testing_two_WellAttributeEditor_ShowButton" caption="Show Well Attributes" className="WellAttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+          <tooltip heading="Show Dockpane">Show Dockpane<disabledText /></tooltip>
+        </button>
+      </controls>
+      <dockPanes>
+        <dockPane id="UIC_testing_two_AttributeEditor" caption="Facility Editor" className="AttributeEditorViewModel" dock="group" dockWith="esri_core_contentsDockPane">
+          <content className="AttributeEditorView" />
+        </dockPane>
+        <dockPane id="UIC_testing_two_WorkFlowPane" caption="UIC Workflow" className="WorkFlowPaneViewModel" dock="group" dockWith="esri_core_contentsDockPane">
+          <content className="WorkFlowPaneView" />
+        </dockPane>
+        <dockPane id="UIC_testing_two_WellAttributeEditor" caption="Well Editor" className="WellAttributeEditorViewModel" dock="group" dockWith="esri_core_contentsDockPane">
+          <content className="WellAttributeEditorView" />
+        </dockPane>
+      </dockPanes>
+    </insertModule>
+  </modules>
+</ArcGIS>

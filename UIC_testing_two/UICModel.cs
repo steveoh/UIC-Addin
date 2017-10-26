@@ -20,7 +20,7 @@ namespace UIC_testing_two
     {
         private readonly object lockCollection = new object();
         private static readonly UICModel instance = new UICModel();
-        private string _isDirty
+        private string _isDirty;
 
         private UICModel()
         {

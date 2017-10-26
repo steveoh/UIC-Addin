@@ -12,7 +12,6 @@ namespace UIC_testing_two
     {
         private const string _dockPaneID = "UIC_testing_two_WellAttributeEditor";
         private UICModel uicModel = UICModel.Instance;
-        private string selectedWell;
 
         protected WellAttributeEditorViewModel()
         {
@@ -43,20 +42,6 @@ namespace UIC_testing_two
             set
             {
                 SetProperty(ref _heading, value, () => Heading);
-            }
-        }
-
-        public string SelectedWell
-        {
-            get
-            {
-                return selectedWell;
-            }
-
-            set
-            {
-                selectedWell = value;
-                uicModel.SelectedWellId = selectedWell;
             }
         }
     }

@@ -20,7 +20,7 @@ namespace UIC_testing_two
     {
         private readonly object lockCollection = new object();
         private static readonly UICModel instance = new UICModel();
-        private string _isDirty;
+        private bool _isDirty;
 
         private UICModel()
         {
@@ -29,6 +29,8 @@ namespace UIC_testing_two
             {
                 BindingOperations.EnableCollectionSynchronization(readOnlyWellIds, lockCollection);
             });
+            _isDirty = false;
+
         }
 
         public static UICModel Instance
@@ -36,6 +38,18 @@ namespace UIC_testing_two
             get
             {
                 return instance;
+            }
+        }
+        public bool IsDirty
+        {
+            get
+            {
+                return _isDirty;
+            }
+
+            set
+            {
+                _isDirty = value;
             }
         }
         #region UicFacility
@@ -61,6 +75,7 @@ namespace UIC_testing_two
             set
             {
                 uicFacilityId = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -73,6 +88,7 @@ namespace UIC_testing_two
 
             set
             {
+                this.IsDirty = true;
                 facilityGuid = value;
             }
         }
@@ -86,6 +102,7 @@ namespace UIC_testing_two
             set
             {
                 countyFips = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -99,6 +116,7 @@ namespace UIC_testing_two
             set
             {
                 naicsPrimary = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -112,6 +130,7 @@ namespace UIC_testing_two
             set
             {
                 facilityName = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -125,6 +144,7 @@ namespace UIC_testing_two
             set
             {
                 facilityAddress = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -138,6 +158,7 @@ namespace UIC_testing_two
             set
             {
                 facilityCity = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -151,6 +172,7 @@ namespace UIC_testing_two
             set
             {
                 facilityState = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -164,6 +186,7 @@ namespace UIC_testing_two
             set
             {
                 facilityZip = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -177,6 +200,7 @@ namespace UIC_testing_two
             set
             {
                 facilityMilepost = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -190,6 +214,7 @@ namespace UIC_testing_two
             set
             {
                 comments = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -197,6 +222,7 @@ namespace UIC_testing_two
 
         public async Task UpdateUicFacility(string facilityId)
         {
+            this.IsDirty = false;
             await QueuedTask.Run(() =>
             {
                 var map = MapView.Active.Map;
@@ -271,6 +297,7 @@ namespace UIC_testing_two
             set
             {
                 _wellId = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -285,6 +312,7 @@ namespace UIC_testing_two
             set
             {
                 _wellName = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -299,6 +327,7 @@ namespace UIC_testing_two
             set
             {
                 _wellClass = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -313,6 +342,7 @@ namespace UIC_testing_two
             set
             {
                 _wellSubClass = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -327,6 +357,7 @@ namespace UIC_testing_two
             set
             {
                 _highPriority = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -341,6 +372,7 @@ namespace UIC_testing_two
             set
             {
                 _wellSwpz = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -355,6 +387,7 @@ namespace UIC_testing_two
             set
             {
                 _locationMethod = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -369,6 +402,7 @@ namespace UIC_testing_two
             set
             {
                 _locationAccuracy = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -383,6 +417,7 @@ namespace UIC_testing_two
             set
             {
                 _wellComments = value;
+                this.IsDirty = true;
                 this.OnPropertyChanged();
             }
         }
@@ -489,8 +524,6 @@ namespace UIC_testing_two
         {
             if (this.PropertyChanged != null)
             {
-                System.Diagnostics.Debug.WriteLine(string.Format("Update Property!: {0}",
-                                    propertyName));
               this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }

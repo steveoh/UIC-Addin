@@ -39,6 +39,23 @@ namespace UIC_testing_two
             //root.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Next one", Complete = true });
             _tableTasks.Add(root);
         }
+        public void ChangeStuff()
+        {
+            uicModel.FacilityName = "fuck this shit";
+        }
+        private bool _modelDirty;
+        public bool ModelDirty
+        {
+            get
+            {
+                return _modelDirty;
+            }
+
+            set
+            {
+                SetProperty(ref _modelDirty, value, () => ModelDirty);
+            }
+        }
 
         /// <summary>
         /// Show the DockPane.
@@ -135,10 +152,54 @@ namespace UIC_testing_two
             set
             {
                 SetProperty(ref _uicSelection, value, () => UicSelection);
-                System.Diagnostics.Debug.WriteLine(_uicSelection);
-
-                uicModel.UpdateUicFacility(_uicSelection);
+                if (_uicSelection.Length > 6 && _uicSelection.Length < 14)
+                {
+                    System.Diagnostics.Debug.WriteLine(_uicSelection);
+                    checkForSugestion(_uicSuggestion);
+                }
+                else if (_uicSelection.Length == 14)
+                {
+                    uicModel.UpdateUicFacility(_uicSelection);
+                }
+                
             }
+        }
+        private string _uicSuggestion = "";
+        public string UicSuggestion
+        {
+            get { return _uicSuggestion; }
+            set
+            {
+                SetProperty(ref _uicSuggestion, value, () => UicSuggestion);
+            }
+        }
+        private async void checkForSugestion (string partialId)
+        {
+            await QueuedTask.Run(() =>
+            {
+                System.Diagnostics.Debug.WriteLine(partialId);
+                string suggestedId = "";
+                int rowCount = 0;
+                var map = MapView.Active.Map;
+                FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICFacility").First();
+                QueryFilter qf = new QueryFilter()
+                {
+                    WhereClause = string.Format("FacilityID LIKE '{0}%'", _uicSelection)
+                };
+                using (RowCursor cursor = uicWells.Search(qf))
+                {
+                    while (cursor.MoveNext())
+                    {
+                        using (Row row = cursor.Current)
+                        {
+                            suggestedId = Convert.ToString(row["FacilityID"]);
+                            rowCount++;
+                        }
+                    }
+                }
+                System.Diagnostics.Debug.WriteLine(rowCount);
+                UicSuggestion = suggestedId;
+            });
         }
         private BasicFeatureLayer _selectedLayer;
         public BasicFeatureLayer SelectedLayer
@@ -175,10 +236,12 @@ namespace UIC_testing_two
                 return _newSelectionCmd;
             }
         }
+
         private Task GetSelectedFeature()
         {
             Task t = QueuedTask.Run(() =>
             {
+                ModelDirty = true;
                 var map = MapView.Active.Map;
                 FeatureLayer uicFacilities = (FeatureLayer)map.FindLayers("UICFacility").First();
                 var currentSelection = uicFacilities.GetSelection();
@@ -229,6 +292,7 @@ namespace UIC_testing_two
         }
 
     }
+
 
     /// <summary>
     /// Button implementation to show the DockPane.

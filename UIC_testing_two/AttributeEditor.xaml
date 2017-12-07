@@ -98,6 +98,5 @@
         <TextBox Grid.Row="9" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
                  Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=Comments}"/>
-        <!--<Button Grid.Row="0" Grid.Column="1" Margin="5" Command="{Binding CmdGetUicData}" ToolTip="Select and Zoom">Select Facility</Button>-->
     </Grid>
 </UserControl>

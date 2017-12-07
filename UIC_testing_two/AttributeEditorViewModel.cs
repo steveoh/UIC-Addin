@@ -155,11 +155,6 @@ namespace UIC_testing_two
             }
         }
 
-        private ICommand _cmdGetUicData;
-        public ICommand CmdGetUicData
-        {
-            get { return _cmdGetUicData ?? (_cmdGetUicData = new RelayCommand(async () => { await uicModel.UpdateUicFacility("UTU19FC207F236"); this.FacilityName = uicModel.FacilityName; }, true)); }
-        }
     }
 
     /// <summary>

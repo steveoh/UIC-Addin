@@ -55,15 +55,26 @@
                     <TextBlock Margin="5"><Run Text="Facility ID:"/></TextBlock>
                     <TextBox Text="{Binding UicSelection, UpdateSourceTrigger=PropertyChanged}" Margin ="5,5,5,10" Width="100"/>
                 </StackPanel>
-                <TextBlock Margin="5" Text="{Binding UicSuggestion}" Width="100"></TextBlock>
+                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1">
+                    <Button Margin="5" Command="" ToolTip="Save Changes" Content="Save" Visibility="Hidden">
+                        <i:Interaction.Behaviors>
+                            <ui:WorkFlowBehaviors NeedsSave="{Binding Source={x:Static ui:UICModel.Instance}, Path=IsDirty}"/>
+                        </i:Interaction.Behaviors>
+                    </Button>
+                    <TextBlock Margin="27,5,5,5" Text="{Binding UicSuggestion}" Width="100">
+                        <TextBlock.InputBindings>
+                            <MouseBinding Command="{Binding UseFacilitySuggestion}" MouseAction="LeftClick" />
+                        </TextBlock.InputBindings>
+                    </TextBlock>
+                </StackPanel>
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <Button Margin="5" Command="{Binding SelectUicAndZoom}" ToolTip="Select and Zoom" Content="Select Facility">
-                    <i:Interaction.Behaviors>
+                <Button Margin="5" Command="{Binding SelectUicAndZoom}" ToolTip="Select and Zoom" Content="Zoom Facility">
+                    <!--<i:Interaction.Behaviors>
                         <ui:WorkFlowBehaviors NeedsSave="{Binding ModelDirty}"/>
-                    </i:Interaction.Behaviors>
+                    </i:Interaction.Behaviors>-->
                 </Button>
-                <Button Margin="5" Command="{Binding GetSelectedFacility}" ToolTip="Use Selected Facility" Width="50" Content="Current"/>
+                <Button Margin="5" Command="{Binding GetSelectedFacility}" ToolTip="Use Selected Facility" Content="Use Selection"/>
             </StackPanel>
                 
          

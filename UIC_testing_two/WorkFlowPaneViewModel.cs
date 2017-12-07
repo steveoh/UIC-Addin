@@ -21,7 +21,7 @@ namespace UIC_testing_two
         private const string _dockPaneID = "UIC_testing_two_WorkFlowPane";
         private ObservableCollection<WorkTask> _tableTasks;
         private int selectedUicId;
-        private UICModel uicModel = UICModel.Instance;
+        public UICModel uicModel = UICModel.Instance;
 
         public WorkFlowPaneViewModel()
         {
@@ -38,10 +38,34 @@ namespace UIC_testing_two
             root.Items.Add(childItem2);
             //root.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Next one", Complete = true });
             _tableTasks.Add(root);
+            ModelDirty = false;
         }
+
+        protected BasicFeatureLayer FindFacilities()
+        {
+            WorkFlowPaneViewModel pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID) as WorkFlowPaneViewModel;
+            BasicFeatureLayer facFeature = QueuedTask.Run(() =>
+            {
+                //if (MapView.Active.GetSelectedLayers().Count == 0)
+                //{
+                //    MessageBox.Show("Select a feature class from the Content 'Table of Content' first.");
+                //    Utils.RunOnUiThread(() => {
+                //        var contentsPane = FrameworkApplication.DockPaneManager.Find("esri_core_contentsDockPane");
+                //        contentsPane.Activate();
+                //    });
+                //    return;
+                //}
+                FeatureLayer uicWells = (FeatureLayer)MapView.Active.Map.FindLayers("UICFacility").First();
+                var layerTable = uicWells.GetTable();
+                return uicWells as BasicFeatureLayer;
+            }).Result;
+            return facFeature;
+        }
+
+        //  behavior test method
         public void ChangeStuff()
         {
-            uicModel.FacilityName = "fuck this shit";
+            uicModel.FacilityName = "Hello there";
         }
         private bool _modelDirty;
         public bool ModelDirty
@@ -155,11 +179,13 @@ namespace UIC_testing_two
                 if (_uicSelection.Length > 6 && _uicSelection.Length < 14)
                 {
                     System.Diagnostics.Debug.WriteLine(_uicSelection);
-                    checkForSugestion(_uicSuggestion);
+                    checkForSugestion(value);
                 }
                 else if (_uicSelection.Length == 14)
                 {
-                    uicModel.UpdateUicFacility(_uicSelection);
+                    UicSuggestion = null;
+                    UpdateModel(value);
+                    //uicModel.UpdateUicFacility(_uicSelection);
                 }
                 
             }
@@ -184,7 +210,7 @@ namespace UIC_testing_two
                 FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICFacility").First();
                 QueryFilter qf = new QueryFilter()
                 {
-                    WhereClause = string.Format("FacilityID LIKE '{0}%'", _uicSelection)
+                    WhereClause = string.Format("FacilityID LIKE '{0}%'", partialId)
                 };
                 using (RowCursor cursor = uicWells.Search(qf))
                 {
@@ -194,20 +220,45 @@ namespace UIC_testing_two
                         {
                             suggestedId = Convert.ToString(row["FacilityID"]);
                             rowCount++;
+                            if (rowCount > 1)
+                            {
+                                UicSuggestion = null;
+                                return;
+                            }
                         }
                     }
                 }
-                System.Diagnostics.Debug.WriteLine(rowCount);
                 UicSuggestion = suggestedId;
             });
         }
         private BasicFeatureLayer _selectedLayer;
         public BasicFeatureLayer SelectedLayer
         {
-            get { return _selectedLayer; }
+            get
+            {
+                if (_selectedLayer == null)
+                {
+                    _selectedLayer = FindFacilities();
+                }
+                return _selectedLayer;
+            }
             set
             {
                 SetProperty(ref _selectedLayer, value, () => SelectedLayer);
+            }
+        }
+
+        private RelayCommand _useFacilitySuggestion;
+        public ICommand UseFacilitySuggestion
+        {
+            get
+            {
+                if (_useFacilitySuggestion == null)
+                {
+                    _useFacilitySuggestion = new RelayCommand(() => { UicSelection = UicSuggestion; },
+                                                              () => { return UicSuggestion != null || UicSuggestion != String.Empty; });
+                }
+                return _useFacilitySuggestion;
             }
         }
 
@@ -218,7 +269,7 @@ namespace UIC_testing_two
             {
                 if (_getSelectionCmd == null)
                 {
-                    _getSelectionCmd = new RelayCommand(async () => await GetSelectedFeature(), () => { return MapView.Active != null; });
+                    _getSelectionCmd = new RelayCommand(() => GetSelectedFeature(), () => { return MapView.Active != null; });
                 }
                 return _getSelectionCmd;
             }
@@ -242,27 +293,21 @@ namespace UIC_testing_two
             Task t = QueuedTask.Run(() =>
             {
                 ModelDirty = true;
-                var map = MapView.Active.Map;
-                FeatureLayer uicFacilities = (FeatureLayer)map.FindLayers("UICFacility").First();
-                var currentSelection = uicFacilities.GetSelection();
+                string selectedId;
+                //var map = MapView.Active.Map;
+                //FeatureLayer uicFacilities = (FeatureLayer)map.FindLayers("UICFacility").First();
+                var currentSelection = SelectedLayer.GetSelection();
                 using (RowCursor cursor = currentSelection.Search())
                 {
                     bool hasRow = cursor.MoveNext();
                     using (Row row = cursor.Current)
                     {
                         System.Diagnostics.Debug.WriteLine(Convert.ToString(row["FacilityName"]));
-                        UicSelection = Convert.ToString(row["FacilityID"]);
+                        selectedId = Convert.ToString(row["FacilityID"]);
                     }
                 }
-
-                    //System.Diagnostics.Debug.WriteLine("Mod Layer Selection");
-                    //if (MapView.Active == null)
-                    //    return;
-                    //var mapView = MapView.Active;
-                    //var selectedFeatures = mapView.Map.GetSelection()
-                    //    .Where(kvp => kvp.Key is BasicFeatureLayer)
-                    //    .ToDictionary(kvp => (BasicFeatureLayer)kvp.Key, kvp => kvp.Value);
-                });
+                UicSelection = selectedId;
+            });
             return t;
         }
         private Task ModifyLayerSelection(SelectionCombinationMethod method)
@@ -276,12 +321,9 @@ namespace UIC_testing_two
                 //if (!ValidateExpresion(false))
                 //    return;
                 string wc = string.Format("FacilityID = \"{0}\"", UicSelection);
-                System.Diagnostics.Debug.WriteLine(wc);
                 SelectedLayer.Select(new QueryFilter() { WhereClause = wc }, method);
                 MapView.Active.ZoomToSelected();
             });
-            this.UpdateModel(UicSelection);
-            this.showPaneTest("esri_editing_AttributesDockPane");
             return t;
         }
 

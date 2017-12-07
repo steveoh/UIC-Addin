@@ -30,7 +30,7 @@ namespace UIC_testing_two
             if (needsSave)
                 behavior.AssociatedObject.Visibility = Visibility.Visible;
             else
-                behavior.AssociatedObject.Visibility = Visibility.Collapsed;
+                behavior.AssociatedObject.Visibility = Visibility.Hidden;
 
         }
 

@@ -93,10 +93,10 @@
                                 <Setter Property="FontWeight" Value="Bold" />
                             </Trigger>
                             <DataTrigger Binding="{Binding Complete}" Value="False">
-                                <Setter Property="Foreground" Value="Black"/>
+                                <Setter Property="Foreground" Value="Red"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Complete}" Value="True">
-                                <Setter Property="Foreground" Value="Green"/>
+                                <Setter Property="Foreground" Value="Black"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

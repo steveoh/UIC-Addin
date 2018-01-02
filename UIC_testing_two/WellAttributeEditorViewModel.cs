@@ -12,6 +12,7 @@ namespace UIC_testing_two
     {
         private const string _dockPaneID = "UIC_testing_two_WellAttributeEditor";
         private UICModel uicModel = UICModel.Instance;
+        private WellModel wellModel = WellModel.Instance;
 
         protected WellAttributeEditorViewModel()
         {

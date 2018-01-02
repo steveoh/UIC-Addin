@@ -13,6 +13,17 @@
             <ResourceDictionary.MergedDictionaries>
                 <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component\Themes\Default.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+ 
+            <Style TargetType="TextBox">
+                <Style.Triggers>
+                    <Trigger Property="Validation.HasError"
+                             Value="true">
+                        <Setter Property="ToolTip"
+                                Value="{Binding RelativeSource={x:Static RelativeSource.Self},
+                             Path=(Validation.Errors).CurrentItem.ErrorContent}"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -49,56 +60,58 @@
                    Text="WellId"/>
         <TextBox Grid.Row="1" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellId}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellId,
+             ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="2" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="WellName"/>
         <TextBox Grid.Row="2" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellName}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellName,
+            ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="3" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="WellClass"/>
         <TextBox Grid.Row="3" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellClass}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellClass}"/>
         <TextBlock Grid.Row="4" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="WellSubClass"/>
         <TextBox Grid.Row="4" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellSubClass}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellSubClass}"/>
         <TextBlock Grid.Row="5" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="HighPriority"/>
         <TextBox Grid.Row="5" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=HighPriority}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=HighPriority}"/>
         <TextBlock Grid.Row="6" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="WellSWPZ"/>
         <TextBox Grid.Row="6" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellSwpz}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellSwpz}"/>
         <TextBlock Grid.Row="7" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="LocationMethod"/>
         <TextBox Grid.Row="7" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=LocationMethod}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=LocationMethod}"/>
         <TextBlock Grid.Row="8" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="LocationAccuracy"/>
         <TextBox Grid.Row="8" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=LocationAccuracy}"/>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=LocationAccuracy}"/>
         <TextBlock Grid.Row="9" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="Comments"/>
         <TextBox Grid.Row="9" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellComments}"/>
-        <ComboBox SelectedItem="{Binding Source={x:Static ui:UICModel.Instance}, Path=SelectedWellId, Mode=TwoWay}"
-                  ItemsSource="{Binding Source={x:Static ui:UICModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
+                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellComments}"/>
+        <ComboBox SelectedItem="{Binding Source={x:Static ui:WellModel.Instance}, Path=SelectedWellId, Mode=TwoWay}"
+                  ItemsSource="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
     </Grid>
 </UserControl>

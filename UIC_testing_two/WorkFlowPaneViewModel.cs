@@ -22,19 +22,26 @@ namespace UIC_testing_two
         private ObservableCollection<WorkTask> _tableTasks;
         private int selectedUicId;
         public UICModel uicModel = UICModel.Instance;
+        public WellModel wellModel = WellModel.Instance;
+
+        WorkTask childItem2;
 
         public WorkFlowPaneViewModel()
         {
+            uicModel.FacilityChanged += wellModel.FacilityChangeHandler;
+            uicModel.PropertyChanged += this.CheckTaskItemsOnChange;
+            wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
             _tableTasks = new ObservableCollection<WorkTask>();
-            WorkTask root = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow" };
-            WorkTask childItem1 = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility" };
-            childItem1.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry", IsCompelete = () => false });
-            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Add county FIPS", IsCompelete = uicModel.IsCountyFipsComplete });
-            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Populate attributes", IsCompelete = () => false });
+            WorkTask root = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
+            WorkTask childItem1 = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility"};
+            childItem1.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry"});
+            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor", uicModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
+            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Populate attributes"});
             root.Items.Add(childItem1);
-            WorkTask childItem2 = new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "UIC Well Point" };
-            childItem2.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry", IsCompelete = () => false });
-            childItem2.Items.Add(new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "Populate attributes", IsCompelete = uicModel.IsWellAtributesComplete });
+
+            childItem2 = new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "UIC Well Point"};
+            childItem2.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane", () => !wellModel.HasErrors) { Title = "Create geometry" });
+            childItem2.Items.Add(new WorkTask("UIC_testing_two_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
             root.Items.Add(childItem2);
             //root.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Next one", Complete = true });
             _tableTasks.Add(root);
@@ -127,14 +134,14 @@ namespace UIC_testing_two
         protected void onRowChangedEvent(RowChangedEventArgs args)
         {
             var row = args.Row;
-            UpdateModel(Convert.ToString(row["FacilityID"]));
+            //UpdateModel(Convert.ToString(row["FacilityID"]));
+        }
+        public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
+        {
+            CheckTaskItems(TableTasks[0]);
         }
         private void CheckTaskItems(WorkTask workTask)
         {
-            System.Diagnostics.Debug.WriteLine(string.Format("CheckTaskItems: title: {0}, complete: {1}",
-                                                             workTask.Title,
-                                                             workTask.IsCompelete().ToString()));
-
             foreach (WorkTask item in workTask.Items)
             {
                 CheckTaskItems(item);
@@ -178,13 +185,14 @@ namespace UIC_testing_two
                 SetProperty(ref _uicSelection, value, () => UicSelection);
                 if (_uicSelection.Length > 6 && _uicSelection.Length < 14)
                 {
-                    System.Diagnostics.Debug.WriteLine(_uicSelection);
                     checkForSugestion(value);
                 }
                 else if (_uicSelection.Length == 14)
                 {
                     UicSuggestion = null;
+                    System.Diagnostics.Debug.WriteLine("Work flow selection id set");
                     UpdateModel(value);
+                    childItem2.Title = String.Format("Wells Wells {0}", wellModel.WellIds.Count());
                     //uicModel.UpdateUicFacility(_uicSelection);
                 }
                 
@@ -203,7 +211,6 @@ namespace UIC_testing_two
         {
             await QueuedTask.Run(() =>
             {
-                System.Diagnostics.Debug.WriteLine(partialId);
                 string suggestedId = "";
                 int rowCount = 0;
                 var map = MapView.Active.Map;
@@ -302,7 +309,6 @@ namespace UIC_testing_two
                     bool hasRow = cursor.MoveNext();
                     using (Row row = cursor.Current)
                     {
-                        System.Diagnostics.Debug.WriteLine(Convert.ToString(row["FacilityName"]));
                         selectedId = Convert.ToString(row["FacilityID"]);
                     }
                 }
@@ -314,7 +320,6 @@ namespace UIC_testing_two
         {
             Task t = QueuedTask.Run(() =>
             {
-                System.Diagnostics.Debug.WriteLine("Mod Layer Selection");
                 if (MapView.Active == null || SelectedLayer == null || UicSelection == null)
                     return;
 
@@ -351,21 +356,47 @@ namespace UIC_testing_two
     public delegate bool IsTaskCompelted();
     public class WorkTask : INotifyPropertyChanged
     {
-        public WorkTask(string activePanel)
+        public IsTaskCompelted IsComplete;
+        public WorkTask(string activePanel, IsTaskCompelted completeCheck = null)
         {
             this.Items = new ObservableCollection<WorkTask>();
             this.ActivePanel = activePanel;
-            this.IsCompelete = this.AreChildrenComplete;
+            if (completeCheck != null)
+                this.IsComplete += completeCheck;
+            else
+                this.IsComplete += this.AreChildrenComplete;
 
-            this.StatusColor = "Red";
             this.Complete = false;
         }
 
-        public string Title { get; set; }
-        public string StatusColor { get; set; }
-        public bool Complete { get; set; }
+        private string _title; 
+        public string Title {
+            get
+            {
+                return _title;
+            }
+            set
+            {
+                if (_title != value)
+                {
+                    _title = value;
+                    OnPropertyChanged("Title");
+                }
+            }
+        }
+        private bool _complete;
+        public bool Complete {
+            get
+            {
+                return _complete;
+            }
+            set
+            {
+                _complete = value;
+            }
+        }
         public string ActivePanel { get; set; }
-        public IsTaskCompelted IsCompelete { get; set; }
+        //public IsTaskCompelted IsCompelete { get; set; }
 
         bool _isExpanded;
         /// <summary>
@@ -432,18 +463,14 @@ namespace UIC_testing_two
 
         public bool CheckForCompletion()
         {
-            bool complete = this.IsCompelete();
-            System.Diagnostics.Debug.WriteLine(String.Format("CheckForCompletion: {0}",
-                                               complete.ToString()));
+            bool complete = this.IsComplete();
             if (complete)
             {
-                this.StatusColor = "Green";
                 this.Complete = true;
             }
             else
             {
                 this.Complete = false;
-                this.StatusColor = "Black";
             }
             this.OnPropertyChanged("Complete");
             return complete;
@@ -470,8 +497,6 @@ namespace UIC_testing_two
         {
             if (this.PropertyChanged != null)
             {
-                System.Diagnostics.Debug.WriteLine(Title);
-                System.Diagnostics.Debug.WriteLine(IsSelected);
                 this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }

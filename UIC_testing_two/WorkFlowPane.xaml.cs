@@ -25,7 +25,6 @@ namespace UIC_testing_two
         public WorkFlowPaneView()
         {
             InitializeComponent();
-            _taskTrackingViewModel = new WorkFlowPaneViewModel();
             base.DataContext = _taskTrackingViewModel;
         }
     }

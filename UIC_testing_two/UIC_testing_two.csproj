@@ -40,6 +40,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.Expression.Interactions, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
@@ -101,14 +102,19 @@
       <DependentUpon>AttributeEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="AttributeEditorViewModel.cs" />
+    <Compile Include="Models\BindableBase.cs" />
+    <Compile Include="Models\DataUpdateDelegates.cs" />
     <Compile Include="Module1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UICModel.cs" />
+    <Compile Include="Models\UICModel.cs" />
+    <Compile Include="Validations\UicValidations.cs" />
     <Compile Include="Utils.cs" />
+    <Compile Include="Models\ValidatableBindableBase.cs" />
     <Compile Include="WellAttributeEditor.xaml.cs">
       <DependentUpon>WellAttributeEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="WellAttributeEditorViewModel.cs" />
+    <Compile Include="Models\WellModel.cs" />
     <Compile Include="WorkFlowBehaviors.cs" />
     <Compile Include="WorkFlowPane.xaml.cs">
       <DependentUpon>WorkFlowPane.xaml</DependentUpon>

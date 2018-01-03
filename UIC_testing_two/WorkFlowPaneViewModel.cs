@@ -19,32 +19,30 @@ namespace UIC_testing_two
     internal class WorkFlowPaneViewModel : DockPane
     {
         private const string _dockPaneID = "UIC_testing_two_WorkFlowPane";
-        private ObservableCollection<WorkTask> _tableTasks;
+        private ObservableCollection<WorkTask> _workTasks;
         private int selectedUicId;
         public UICModel uicModel = UICModel.Instance;
         public WellModel wellModel = WellModel.Instance;
-
-        WorkTask childItem2;
 
         public WorkFlowPaneViewModel()
         {
             uicModel.FacilityChanged += wellModel.FacilityChangeHandler;
             uicModel.PropertyChanged += this.CheckTaskItemsOnChange;
             wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
-            _tableTasks = new ObservableCollection<WorkTask>();
-            WorkTask root = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
-            WorkTask childItem1 = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility"};
-            childItem1.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry"});
-            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor", uicModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
-            childItem1.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Populate attributes"});
-            root.Items.Add(childItem1);
+            _workTasks = new ObservableCollection<WorkTask>();
+            WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
+            WorkTask facilityWork = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility"};
+            facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry"});
+            facilityWork.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor", uicModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
+            facilityWork.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Populate attributes"});
+            uicTaskRoot.Items.Add(facilityWork);
 
-            childItem2 = new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "UIC Well Point"};
-            childItem2.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane", () => !wellModel.HasErrors) { Title = "Create geometry" });
-            childItem2.Items.Add(new WorkTask("UIC_testing_two_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
-            root.Items.Add(childItem2);
-            //root.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Next one", Complete = true });
-            _tableTasks.Add(root);
+            WorkTask wellWork = new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "UIC Well Point"};
+            wellWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane", () => !wellModel.HasErrors) { Title = "Create geometry" });
+            wellWork.Items.Add(new WorkTask("UIC_testing_two_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
+            uicTaskRoot.Items.Add(wellWork);
+
+            _workTasks.Add(uicTaskRoot);
             ModelDirty = false;
         }
 
@@ -164,7 +162,7 @@ namespace UIC_testing_two
 
         public ObservableCollection<WorkTask> TableTasks
         {
-            get { return _tableTasks; }
+            get { return _workTasks; }
         }
 
         public void showPaneTest(string paneId)
@@ -192,8 +190,7 @@ namespace UIC_testing_two
                     UicSuggestion = null;
                     System.Diagnostics.Debug.WriteLine("Work flow selection id set");
                     UpdateModel(value);
-                    childItem2.Title = String.Format("Wells Wells {0}", wellModel.WellIds.Count());
-                    //uicModel.UpdateUicFacility(_uicSelection);
+                    //wellTask.Title = String.Format("Wells Wells {0}", wellModel.WellIds.Count());
                 }
                 
             }
@@ -354,9 +351,8 @@ namespace UIC_testing_two
     }
 
     public delegate bool IsTaskCompelted();
-    public class WorkTask : INotifyPropertyChanged
+    class WorkTask : BindableBase
     {
-        public IsTaskCompelted IsComplete;
         public WorkTask(string activePanel, IsTaskCompelted completeCheck = null)
         {
             this.Items = new ObservableCollection<WorkTask>();
@@ -369,6 +365,7 @@ namespace UIC_testing_two
             this.Complete = false;
         }
 
+        public IsTaskCompelted IsComplete;
         private string _title; 
         public string Title {
             get
@@ -377,11 +374,7 @@ namespace UIC_testing_two
             }
             set
             {
-                if (_title != value)
-                {
-                    _title = value;
-                    OnPropertyChanged("Title");
-                }
+                SetProperty(ref _title, value);
             }
         }
         private bool _complete;
@@ -392,7 +385,7 @@ namespace UIC_testing_two
             }
             set
             {
-                _complete = value;
+                SetProperty(ref _complete, value);
             }
         }
         public string ActivePanel { get; set; }
@@ -408,12 +401,7 @@ namespace UIC_testing_two
             get { return _isExpanded; }
             set
             {
-                if (value != _isExpanded)
-                {
-                    _isExpanded = value;
-                    this.OnPropertyChanged("IsExpanded");
-                }
-
+                SetProperty(ref _isExpanded, value);
                 // Expand all the way up to the root.
                 //if (_isExpanded && _parent != null)
                 //    _parent.IsExpanded = true;
@@ -437,8 +425,6 @@ namespace UIC_testing_two
                     {
                         try
                         {
-
-                            //var pane = FrameworkApplication.DockPaneManager.Find("ProAppModule1_Dockpane1") as Dockpane1ViewModel;
                             QueuedTask.Run(() => {
                                 Utils.RunOnUiThread(() =>
                                 {
@@ -455,7 +441,7 @@ namespace UIC_testing_two
                         }
 
                     }
-                    this.OnPropertyChanged("IsSelected");
+                    SetProperty(ref _isSelected, value);
 
                 }
             }
@@ -472,7 +458,6 @@ namespace UIC_testing_two
             {
                 this.Complete = false;
             }
-            this.OnPropertyChanged("Complete");
             return complete;
         }
 
@@ -488,20 +473,6 @@ namespace UIC_testing_two
             }
             return complete;
         }
-
-        #region INotifyPropertyChanged Members
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            if (this.PropertyChanged != null)
-            {
-                this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        #endregion // INotifyPropertyChanged Members
 
         public ObservableCollection<WorkTask> Items { get; set; }
     }

@@ -16,119 +16,119 @@ namespace UIC_testing_two
         private UICModel uicModel = UICModel.Instance;
         protected AttributeEditorViewModel()
         {
-            _countyFips = uicModel.CountyFips;
-            _naicsPrimary = uicModel.NaicsPrimary;
-            _facilityName = uicModel.FacilityName;
-            _facilityAddress = uicModel.FacilityAddress;
-            _facilityCity = uicModel.FacilityCity;
-            _facilityState = uicModel.FacilityState;
-            _facilityZip = uicModel.FacilityZip;
-            _facilityMilepost = uicModel.FacilityMilepost;
-            _comments = uicModel.Comments;
-            _facilityId = uicModel.UicFacilityId;
+            //_countyFips = uicModel.CountyFips;
+            //_naicsPrimary = uicModel.NaicsPrimary;
+            //_facilityName = uicModel.FacilityName;
+            //_facilityAddress = uicModel.FacilityAddress;
+            //_facilityCity = uicModel.FacilityCity;
+            //_facilityState = uicModel.FacilityState;
+            //_facilityZip = uicModel.FacilityZip;
+            //_facilityMilepost = uicModel.FacilityMilepost;
+            //_comments = uicModel.Comments;
+            //_facilityId = uicModel.UicFacilityId;
         }
 
 
-        private string _countyFips;
-        public string CountyFips
-        {
-            get { return _countyFips; }
-            set
-            {
-                SetProperty(ref _countyFips, value, () => CountyFips);
-                uicModel.CountyFips = _countyFips;
-            }
-        }
-        private string _naicsPrimary;
-        public string NaicsPrimary
-        {
-            get { return _naicsPrimary; }
-            set
-            {
-                SetProperty(ref _naicsPrimary, value, () => NaicsPrimary);
-                uicModel.NaicsPrimary = _naicsPrimary;
-            }
-        }
-        private string _facilityName;
-        public string FacilityName
-        {
-            get { return _facilityName; }
-            set
-            {
-                SetProperty(ref _facilityName, value, () => FacilityName);
-                uicModel.FacilityName = _facilityName;
-            }
-        }
-        private string _facilityAddress;
-        public string FacilityAddress
-        {
-            get { return _facilityAddress; }
-            set
-            {
-                SetProperty(ref _facilityAddress, value, () => FacilityAddress);
-                uicModel.FacilityAddress = _facilityAddress;
-            }
-        }
-        private string _facilityCity;
-        public string FacilityCity
-        {
-            get { return _facilityCity; }
-            set
-            {
-                SetProperty(ref _facilityCity, value, () => FacilityCity);
-                uicModel.FacilityCity = _facilityCity;
-            }
-        }
-        private string _facilityState;
-        public string FacilityState
-        {
-            get { return _facilityState; }
-            set
-            {
-                SetProperty(ref _facilityState, value, () => FacilityState);
-                uicModel.FacilityState = _facilityState;
-            }
-        }
-        private string _facilityZip;
-        public string FacilityZip
-        {
-            get { return _facilityZip; }
-            set
-            {
-                SetProperty(ref _facilityZip, value, () => FacilityZip);
-                uicModel.FacilityZip = _facilityZip;
-            }
-        }
-        private string _facilityMilepost;
-        public string FacilityMilepost
-        {
-            get { return _facilityMilepost; }
-            set
-            {
-                SetProperty(ref _facilityMilepost, value, () => FacilityMilepost);
-                uicModel.FacilityMilepost = _facilityMilepost;
-            }
-        }
-        private string _comments;
-        public string Comments
-        {
-            get { return _comments; }
-            set
-            {
-                SetProperty(ref _comments, value, () => Comments);
-                uicModel.Comments = _comments;
-            }
-        }
-        private string _facilityId;
-        public string FacilityId
-        {
-            get { return _facilityId; }
-            set
-            {
-                SetProperty(ref _facilityId, value, () => FacilityId);
-                uicModel.UicFacilityId = _facilityId;
-            }
-        }
+        //private string _countyFips;
+        //public string CountyFips
+        //{
+        //    get { return _countyFips; }
+        //    set
+        //    {
+        //        SetProperty(ref _countyFips, value, () => CountyFips);
+        //        uicModel.CountyFips = _countyFips;
+        //    }
+        //}
+        //private string _naicsPrimary;
+        //public string NaicsPrimary
+        //{
+        //    get { return _naicsPrimary; }
+        //    set
+        //    {
+        //        SetProperty(ref _naicsPrimary, value, () => NaicsPrimary);
+        //        uicModel.NaicsPrimary = _naicsPrimary;
+        //    }
+        //}
+        //private string _facilityName;
+        //public string FacilityName
+        //{
+        //    get { return _facilityName; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityName, value, () => FacilityName);
+        //        uicModel.FacilityName = _facilityName;
+        //    }
+        //}
+        //private string _facilityAddress;
+        //public string FacilityAddress
+        //{
+        //    get { return _facilityAddress; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityAddress, value, () => FacilityAddress);
+        //        uicModel.FacilityAddress = _facilityAddress;
+        //    }
+        //}
+        //private string _facilityCity;
+        //public string FacilityCity
+        //{
+        //    get { return _facilityCity; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityCity, value, () => FacilityCity);
+        //        uicModel.FacilityCity = _facilityCity;
+        //    }
+        //}
+        //private string _facilityState;
+        //public string FacilityState
+        //{
+        //    get { return _facilityState; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityState, value, () => FacilityState);
+        //        uicModel.FacilityState = _facilityState;
+        //    }
+        //}
+        //private string _facilityZip;
+        //public string FacilityZip
+        //{
+        //    get { return _facilityZip; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityZip, value, () => FacilityZip);
+        //        uicModel.FacilityZip = _facilityZip;
+        //    }
+        //}
+        //private string _facilityMilepost;
+        //public string FacilityMilepost
+        //{
+        //    get { return _facilityMilepost; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityMilepost, value, () => FacilityMilepost);
+        //        uicModel.FacilityMilepost = _facilityMilepost;
+        //    }
+        //}
+        //private string _comments;
+        //public string Comments
+        //{
+        //    get { return _comments; }
+        //    set
+        //    {
+        //        SetProperty(ref _comments, value, () => Comments);
+        //        uicModel.Comments = _comments;
+        //    }
+        //}
+        //private string _facilityId;
+        //public string FacilityId
+        //{
+        //    get { return _facilityId; }
+        //    set
+        //    {
+        //        SetProperty(ref _facilityId, value, () => FacilityId);
+        //        uicModel.UicFacilityId = _facilityId;
+        //    }
+        //}
 
     /// <summary>
     /// Show the DockPane.

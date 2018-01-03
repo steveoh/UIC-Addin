@@ -18,9 +18,8 @@ namespace UIC_testing_two
 {
     class UICModel: INotifyPropertyChanged
     {
-        private static readonly UICModel instance = new UICModel();
-        private WellModel wellModel = WellModel.Instance;
-        private bool _isDirty;
+        private static readonly UICModel _instance = new UICModel();
+        private WellModel _wellModel = WellModel.Instance;
         public event FacilityChangeDelegate FacilityChanged;
 
         private UICModel()
@@ -29,24 +28,25 @@ namespace UIC_testing_two
 
         }
 
-        private string uicFacilityId = "";
-        private string facilityGuid;
-        private string countyFips;
-        private string naicsPrimary;
-        private string facilityName = "";
-        private string facilityAddress;
-        private string facilityCity;
-        private string facilityState;
-        private string facilityZip;
-        private string facilityMilepost;
-        private string comments;
+        private bool _isDirty;
+        private string _uicFacilityId = "";
+        private string _facilityGuid;
+        private string _countyFips;
+        private string _naicsPrimary;
+        private string _facilityName = "";
+        private string _facilityAddress;
+        private string _facilityCity;
+        private string _facilityState;
+        private string _facilityZip;
+        private string _facilityMilepost;
+        private string _comments;
 
         #region properties
         public static UICModel Instance
         {
             get
             {
-                return instance;
+                return _instance;
             }
         }
         public bool IsDirty
@@ -70,14 +70,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return uicFacilityId;
+                return _uicFacilityId;
             }
 
             set
             {
-                if (!uicFacilityId.Equals(value))
+                if (!_uicFacilityId.Equals(value))
                 {
-                    uicFacilityId = value;
+                    _uicFacilityId = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -86,14 +86,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityGuid;
+                return _facilityGuid;
             }
 
             set
             {
-                if (facilityGuid != value)
+                if (_facilityGuid != value)
                 {
-                    facilityGuid = value;
+                    _facilityGuid = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -102,14 +102,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return countyFips;
+                return _countyFips;
             }
 
             set
             {
-                if (countyFips != value)
+                if (_countyFips != value)
                 {
-                    countyFips = value;
+                    _countyFips = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -118,14 +118,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return naicsPrimary;
+                return _naicsPrimary;
             }
 
             set
             {
-                if (naicsPrimary != value)
+                if (_naicsPrimary != value)
                 {
-                    naicsPrimary = value;
+                    _naicsPrimary = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -134,14 +134,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityName;
+                return _facilityName;
             }
 
             set
             {
-                if (!facilityName.Equals(value))
+                if (!_facilityName.Equals(value))
                 {
-                    facilityName = value;
+                    _facilityName = value;
                     this.IsDirty = true;
                     this.OnPropertyChanged();
                 }
@@ -151,14 +151,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityAddress;
+                return _facilityAddress;
             }
 
             set
             {
-                if (facilityAddress != value)
+                if (_facilityAddress != value)
                 {
-                    facilityAddress = value;
+                    _facilityAddress = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -167,14 +167,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityCity;
+                return _facilityCity;
             }
 
             set
             {
-                if (facilityCity != value)
+                if (_facilityCity != value)
                 {
-                    facilityCity = value;
+                    _facilityCity = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -183,14 +183,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityState;
+                return _facilityState;
             }
 
             set
             {
-                if (facilityState != value)
+                if (_facilityState != value)
                 {
-                    facilityState = value;
+                    _facilityState = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -199,14 +199,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityZip;
+                return _facilityZip;
             }
 
             set
             {
-                if (facilityZip != value)
+                if (_facilityZip != value)
                 {
-                    facilityZip = value;
+                    _facilityZip = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -215,14 +215,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return facilityMilepost;
+                return _facilityMilepost;
             }
 
             set
             {
-                if (facilityMilepost != value)
+                if (_facilityMilepost != value)
                 {
-                    facilityMilepost = value;
+                    _facilityMilepost = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -231,14 +231,14 @@ namespace UIC_testing_two
         {
             get
             {
-                return comments;
+                return _comments;
             }
 
             set
             {
-                if (comments != value)
+                if (_comments != value)
                 {
-                    comments = value;
+                    _comments = value;
                     this.OnPropertyChanged();
                 }
             }
@@ -279,7 +279,7 @@ namespace UIC_testing_two
                     this.IsDirty = false;
                 });
                 System.Diagnostics.Debug.WriteLine("uicmodel UpdateUicFacility");
-                FacilityChanged(oldFacId, this.UicFacilityId, this.facilityGuid);
+                FacilityChanged(oldFacId, this.UicFacilityId, this._facilityGuid);
             }
         }
 

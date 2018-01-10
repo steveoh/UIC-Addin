@@ -14,7 +14,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UIC_testing_two
 {
-    class WellModel : ValidatableBindableBase
+    class WellModel : ValidatableBindableBase, IWorkTaskModel
     {
         private readonly object lockCollection = new object();
         private static readonly WellModel instance = new WellModel();
@@ -44,12 +44,19 @@ namespace UIC_testing_two
         private string _locationAccuracy;
         private string _wellComments;
 
+        private string _createdOn;
+        private string _modifiedOn;
+        private string _editedBy;
+        private string _surfaceElevation;
+
+
         private string selectedWellId;
 
         private readonly ObservableCollection<string> _facilityWellIds = new ObservableCollection<string>();
         private readonly ReadOnlyObservableCollection<string> readOnlyWellIds;
 
         #region properties
+        #region tablefields
         [Required]
         public string WellId
         {
@@ -64,6 +71,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         [UicValidations]
         public string WellName
         {
@@ -75,9 +83,11 @@ namespace UIC_testing_two
             set
             {
                 SetProperty(ref _wellName, value);
+                _isDirty = true;
             }
         }
 
+        [Required]
         public string WellClass
         {
             get
@@ -91,6 +101,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         public string WellSubClass
         {
             get
@@ -104,6 +115,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         public string HighPriority
         {
             get
@@ -117,6 +129,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         public string WellSwpz
         {
             get
@@ -130,6 +143,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         public string LocationMethod
         {
             get
@@ -144,6 +158,7 @@ namespace UIC_testing_two
             }
         }
 
+        [Required]
         public string LocationAccuracy
         {
             get
@@ -169,6 +184,7 @@ namespace UIC_testing_two
                 SetProperty(ref _wellComments, value);
             }
         }
+        #endregion // End tablefields
 
         public ReadOnlyObservableCollection<string> WellIds => readOnlyWellIds;
 
@@ -181,13 +197,15 @@ namespace UIC_testing_two
 
             set
             {
-                if (selectedWellId != value)
-                {
-                    selectedWellId = value;
-                    if (selectedWellId != null)
-                        UpdateUicWell(selectedWellId);
-                   OnPropertyChanged();
-                }
+                SetProperty(ref selectedWellId, value);
+                if (selectedWellId != null)
+                    UpdateModel(selectedWellId);
+                //if (selectedWellId != value)
+                //{
+                //    selectedWellId = value;
+
+                //   OnPropertyChanged();
+                //}
             }
         }
 
@@ -200,7 +218,7 @@ namespace UIC_testing_two
         }
         #endregion
 
-        public async Task GetWellsForFacility(string facilityId)
+        public async Task AddIdsForFacility(string facilityId)
         {
             await QueuedTask.Run(() =>
             {
@@ -224,10 +242,11 @@ namespace UIC_testing_two
             });
         }
 
-        public async Task UpdateUicWell(string wellId)
+        public async Task UpdateModel(string wellId)
         {
             await QueuedTask.Run(() =>
             {
+
                 if (wellId == null || wellId == String.Empty)
                 {
                     this.WellId = "";
@@ -280,7 +299,7 @@ namespace UIC_testing_two
         public async void FacilityChangeHandler(string oldId, string newId, string facGuid)
         {
             System.Diagnostics.Debug.WriteLine($"Old id {oldId}, New Id {newId}");
-            await GetWellsForFacility(facGuid);
+            await AddIdsForFacility(facGuid);
             if (WellIds.Count == 0)
             {
                 //await UpdateUicWell(null);

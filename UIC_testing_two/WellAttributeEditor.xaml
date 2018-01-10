@@ -26,7 +26,7 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
+    <Grid Margin="0,0,0,-33">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -55,6 +55,9 @@
                 </TextBlock.ToolTip>
             </TextBlock>
         </DockPanel>
+
+        <ComboBox SelectedItem="{Binding Source={x:Static ui:WellModel.Instance}, Path=SelectedWellId, Mode=TwoWay}" Margin="5"
+                  ItemsSource="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
         <TextBlock Grid.Row="1" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="WellId"/>
@@ -111,7 +114,11 @@
         <TextBox Grid.Row="9" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
                  Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellComments}"/>
-        <ComboBox SelectedItem="{Binding Source={x:Static ui:WellModel.Instance}, Path=SelectedWellId, Mode=TwoWay}"
-                  ItemsSource="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2">
+            <Button HorizontalAlignment="Right" Margin="5" Content="Add Selected Point"/>
+            <Button HorizontalAlignment="Right" Margin="5" Content="Add Authorization"/>
+            <Button HorizontalAlignment="Right" Margin="5" Content="Explode"/>
+        </StackPanel>
     </Grid>
 </UserControl>

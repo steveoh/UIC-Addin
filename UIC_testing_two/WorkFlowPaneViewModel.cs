@@ -21,14 +21,22 @@ namespace UIC_testing_two
         private const string _dockPaneID = "UIC_testing_two_WorkFlowPane";
         private ObservableCollection<WorkTask> _workTasks;
         private int selectedUicId;
-        public UICModel uicModel = UICModel.Instance;
+        private List<IWorkTaskModel> models;
+        public FacilityModel uicModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
+        public AuthorizationModel authModel =   AuthorizationModel.Instance;
 
         public WorkFlowPaneViewModel()
         {
-            uicModel.FacilityChanged += wellModel.FacilityChangeHandler;
+            models = new List<IWorkTaskModel>() { wellModel, authModel };
+            foreach (IWorkTaskModel model in models)
+            {
+                uicModel.FacilityChanged += model.FacilityChangeHandler;
+                INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
+                propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
+            }
             uicModel.PropertyChanged += this.CheckTaskItemsOnChange;
-            wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
+            //wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
             WorkTask facilityWork = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility"};
@@ -71,6 +79,20 @@ namespace UIC_testing_two
         public void ChangeStuff()
         {
             uicModel.FacilityName = "Hello there";
+        }
+
+        private bool _emptyFips = false;
+        public bool EmptyFips
+        {
+            get
+            {
+                return _emptyFips;
+            }
+
+            set
+            {
+                SetProperty(ref _emptyFips, value, () => EmptyFips);
+            }
         }
         private bool _modelDirty;
         public bool ModelDirty
@@ -174,6 +196,39 @@ namespace UIC_testing_two
             });
 
         }
+
+        private long _selectedOid;
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
+                //SetProperty(ref _selectedFips, value, () => SelectedFips);
+            }
+        }
+        private string _selectedFips;
+        public string SelectedFips
+        {
+            get
+            {
+                return _selectedFips;
+            }
+
+            set
+            {
+                SetProperty(ref _selectedFips, value, () => SelectedFips);
+                int fips;
+                if (_selectedFips.Length == 5 && int.TryParse(_selectedFips, out fips))
+                {
+                    EmptyFips = false;
+                }
+            }
+        }
         private string _uicSelection = "";
         public string UicSelection
         {
@@ -181,6 +236,7 @@ namespace UIC_testing_two
             set
             {
                 SetProperty(ref _uicSelection, value, () => UicSelection);
+                //clear model if not dirty
                 if (_uicSelection.Length > 6 && _uicSelection.Length < 14)
                 {
                     checkForSugestion(value);
@@ -266,6 +322,19 @@ namespace UIC_testing_two
             }
         }
 
+        private RelayCommand _assignIdCmd;
+        public ICommand AssignId
+        {
+            get
+            {
+                if (_assignIdCmd == null)
+                {
+                    _assignIdCmd = new RelayCommand(() => AssignFacilityId(), () => { return MapView.Active != null; });
+                }
+                return _assignIdCmd;
+            }
+        }
+
         private RelayCommand _getSelectionCmd;
         public ICommand GetSelectedFacility
         {
@@ -298,18 +367,33 @@ namespace UIC_testing_two
             {
                 ModelDirty = true;
                 string selectedId;
-                //var map = MapView.Active.Map;
-                //FeatureLayer uicFacilities = (FeatureLayer)map.FindLayers("UICFacility").First();
+                string countyFips;
                 var currentSelection = SelectedLayer.GetSelection();
                 using (RowCursor cursor = currentSelection.Search())
                 {
                     bool hasRow = cursor.MoveNext();
                     using (Row row = cursor.Current)
                     {
-                        selectedId = Convert.ToString(row["FacilityID"]);
+                        selectedId = Convert.ToString(row[FacilityModel.ID_FIELD]);
+                        countyFips = Convert.ToString(row["CountyFIPS"]);
+                        SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                     }
                 }
+                if (String.IsNullOrWhiteSpace(selectedId))
+                {
+                    if (String.IsNullOrWhiteSpace(countyFips))
+                    {
+                        EmptyFips = true;
+                    }
+                    else
+                    {
+                        //Create Id from fips and global
+                    }
+                }
+ 
                 UicSelection = selectedId;
+                SelectedFips = countyFips;
+
             });
             return t;
         }
@@ -328,10 +412,38 @@ namespace UIC_testing_two
             });
             return t;
         }
+        private Task AssignFacilityId()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update date";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(SelectedLayer, oidSet);
+
+                long fips;
+                long.TryParse(SelectedFips, out fips);
+                insp["CountyFIPS"] = fips;
+                Guid newGuid = Guid.NewGuid();
+                string guidLast8 = newGuid.ToString();
+                guidLast8 = guidLast8.Substring(guidLast8.Length - 8);
+                insp["GUID"] = newGuid;
+                string newFacilityId = String.Format("UTU{0}F{1}", SelectedFips.Substring(SelectedFips.Length - 2), guidLast8).ToUpper();
+                insp[FacilityModel.ID_FIELD] = newFacilityId;
+
+                op.Modify(insp);
+                op.Execute();
+                UicSelection = newFacilityId;
+            });
+            return t;
+        }
 
         private async void UpdateModel(string uicId)
         {
-            await uicModel.UpdateUicFacility(uicId);
+            await uicModel.UpdateModel(uicId);
             this.CheckTaskItems(TableTasks[0]);
         }
 
@@ -418,30 +530,25 @@ namespace UIC_testing_two
             get { return _isSelected; }
             set
             {
-                if (value != _isSelected)
+                SetProperty(ref _isSelected, value);
+                if (_isSelected)
                 {
-                    _isSelected = value;
-                    if (_isSelected)
+                    try
                     {
-                        try
-                        {
-                            QueuedTask.Run(() => {
-                                Utils.RunOnUiThread(() =>
-                                {
-                                    var pane = FrameworkApplication.DockPaneManager.Find(ActivePanel);
-                                    pane.Activate();
-                                });
+                        QueuedTask.Run(() => {
+                            Utils.RunOnUiThread(() =>
+                            {
+                                var pane = FrameworkApplication.DockPaneManager.Find(ActivePanel);
+                                pane.Activate();
                             });
-
-                        }
-                        catch (Exception)
-                        {
-
-                            throw;
-                        }
+                        });
 
                     }
-                    SetProperty(ref _isSelected, value);
+                    catch (Exception)
+                    {
+
+                        throw;
+                    }
 
                 }
             }

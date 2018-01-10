@@ -10,22 +10,12 @@ using System.ComponentModel;
 
 namespace UIC_testing_two
 {
-    internal class AttributeEditorViewModel : DockPane
+    internal class FacilityAttributeEditorViewModel : DockPane
     {
         private const string _dockPaneID = "UIC_testing_two_AttributeEditor";
-        private UICModel uicModel = UICModel.Instance;
-        protected AttributeEditorViewModel()
+        private FacilityModel uicModel = FacilityModel.Instance;
+        protected FacilityAttributeEditorViewModel()
         {
-            //_countyFips = uicModel.CountyFips;
-            //_naicsPrimary = uicModel.NaicsPrimary;
-            //_facilityName = uicModel.FacilityName;
-            //_facilityAddress = uicModel.FacilityAddress;
-            //_facilityCity = uicModel.FacilityCity;
-            //_facilityState = uicModel.FacilityState;
-            //_facilityZip = uicModel.FacilityZip;
-            //_facilityMilepost = uicModel.FacilityMilepost;
-            //_comments = uicModel.Comments;
-            //_facilityId = uicModel.UicFacilityId;
         }
 
 
@@ -164,7 +154,7 @@ namespace UIC_testing_two
     {
         protected override void OnClick()
         {
-            AttributeEditorViewModel.Show();
+            FacilityAttributeEditorViewModel.Show();
         }
     }
 }

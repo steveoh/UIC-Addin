@@ -16,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component\Themes\Default.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="boolToVis" />
         </ResourceDictionary>
     </UserControl.Resources>
     <i:Interaction.Triggers>
@@ -51,14 +52,19 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1" Visibility="{Binding EmptyFips, Converter={StaticResource boolToVis}}">
+                    <TextBlock Margin="5" FontWeight="Bold" Foreground="Red"><Run Text="County FIPS:"/></TextBlock>
+                    <TextBox Text="{Binding SelectedFips}" Margin ="5,5,5,10" Width="84" ToolTip="Enter County FIPS"/>
+                </StackPanel>
                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1">
                     <TextBlock Margin="5"><Run Text="Facility ID:"/></TextBlock>
                     <TextBox Text="{Binding UicSelection, UpdateSourceTrigger=PropertyChanged}" Margin ="5,5,5,10" Width="100"/>
                 </StackPanel>
+
                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1">
                     <Button Margin="5" Command="" ToolTip="Save Changes" Content="Save" Visibility="Hidden">
                         <i:Interaction.Behaviors>
-                            <ui:WorkFlowBehaviors NeedsSave="{Binding Source={x:Static ui:UICModel.Instance}, Path=IsDirty}"/>
+                            <ui:WorkFlowBehaviors NeedsSave="{Binding Source={x:Static ui:FacilityModel.Instance}, Path=IsDirty}"/>
                         </i:Interaction.Behaviors>
                     </Button>
                     <TextBlock Margin="27,5,5,5" Text="{Binding UicSuggestion}" Width="100">
@@ -69,6 +75,7 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel Grid.Column="1">
+                <Button Margin="5" Command="{Binding AssignId}" ToolTip="Create Facility ID" Content="Assign ID"  Visibility="{Binding EmptyFips, Converter={StaticResource boolToVis}}"/>
                 <Button Margin="5" Command="{Binding SelectUicAndZoom}" ToolTip="Select and Zoom" Content="Zoom Facility">
                     <!--<i:Interaction.Behaviors>
                         <ui:WorkFlowBehaviors NeedsSave="{Binding ModelDirty}"/>
@@ -103,7 +110,7 @@
                 </TreeView.ItemContainerStyle>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type ui:WorkTask}" ItemsSource="{Binding Items}">
-                        <TextBlock Text="{Binding Title}" />
+                        <TextBlock Text="{Binding Title}"/>
                     </HierarchicalDataTemplate>
                 </TreeView.ItemTemplate>
             </TreeView>

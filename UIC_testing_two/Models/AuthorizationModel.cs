@@ -12,7 +12,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     class AuthorizationModel : ValidatableBindableBase, IWorkTaskModel
     {

@@ -27,7 +27,7 @@ using System.Windows;
 using System.Windows.Input;
 using MessageBox = ArcGIS.Desktop.Framework.Dialogs.MessageBox;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     internal class Utils
     {

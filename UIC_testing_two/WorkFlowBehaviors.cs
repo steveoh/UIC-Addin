@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interactivity;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     public class WorkFlowBehaviors : Behavior<Button>
     {

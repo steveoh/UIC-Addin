@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     /// <summary>
     /// Interaction logic for WorkFlowPaneView.xaml

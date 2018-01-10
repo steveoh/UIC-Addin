@@ -14,11 +14,11 @@ using ArcGIS.Desktop.Framework.Dialogs;
 using System.ComponentModel;
 using ArcGIS.Core.Data;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     internal class WorkFlowPaneViewModel : DockPane
     {
-        private const string _dockPaneID = "UIC_testing_two_WorkFlowPane";
+        private const string _dockPaneID = "UIC_Edit_Workflow_WorkFlowPane";
         private ObservableCollection<WorkTask> _workTasks;
         private int selectedUicId;
         private List<IWorkTaskModel> models;
@@ -39,15 +39,15 @@ namespace UIC_testing_two
             //wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
-            WorkTask facilityWork = new WorkTask("UIC_testing_two_AttributeEditor") { Title = "UIC facility"};
+            WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_AttributeEditor") { Title = "UIC facility"};
             facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry"});
-            facilityWork.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor", uicModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
-            facilityWork.Items.Add(new WorkTask("UIC_testing_two_AttributeEditor") { Title = "Populate attributes"});
+            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AttributeEditor", uicModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
+            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AttributeEditor") { Title = "Populate attributes"});
             uicTaskRoot.Items.Add(facilityWork);
 
-            WorkTask wellWork = new WorkTask("UIC_testing_two_WellAttributeEditor") { Title = "UIC Well Point"};
+            WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "UIC Well Point"};
             wellWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane", () => !wellModel.HasErrors) { Title = "Create geometry" });
-            wellWork.Items.Add(new WorkTask("UIC_testing_two_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
+            wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
             uicTaskRoot.Items.Add(wellWork);
 
             _workTasks.Add(uicTaskRoot);

@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     internal class WellAttributeEditorViewModel : DockPane
     {
-        private const string _dockPaneID = "UIC_testing_two_WellAttributeEditor";
+        private const string _dockPaneID = "UIC_Edit_Workflow_WellAttributeEditor";
         private FacilityModel uicModel = FacilityModel.Instance;
         private WellModel wellModel = WellModel.Instance;
 

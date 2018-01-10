@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     class ValidatableBindableBase : BindableBase, INotifyDataErrorInfo
     {

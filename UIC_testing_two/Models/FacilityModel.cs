@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     class FacilityModel: ValidatableBindableBase
     {

@@ -7,7 +7,7 @@ using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using System.Threading.Tasks;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     internal class Module1 : Module
     {
@@ -20,7 +20,7 @@ namespace UIC_testing_two
         {
             get
             {
-                return _this ?? (_this = (Module1)FrameworkApplication.FindModule("UIC_testing_two_Module"));
+                return _this ?? (_this = (Module1)FrameworkApplication.FindModule("UIC_Edit_Workflow_Module"));
             }
         }
 

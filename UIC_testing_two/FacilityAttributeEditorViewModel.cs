@@ -8,11 +8,11 @@ using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
 using System.ComponentModel;
 
-namespace UIC_testing_two
+namespace UIC_Edit_Workflow
 {
     internal class FacilityAttributeEditorViewModel : DockPane
     {
-        private const string _dockPaneID = "UIC_testing_two_AttributeEditor";
+        private const string _dockPaneID = "UIC_Edit_Workflow_AttributeEditor";
         private FacilityModel uicModel = FacilityModel.Instance;
         protected FacilityAttributeEditorViewModel()
         {

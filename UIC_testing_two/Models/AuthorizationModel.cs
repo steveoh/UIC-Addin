@@ -52,6 +52,37 @@ namespace UIC_Edit_Workflow
         private readonly ReadOnlyObservableCollection<string> readOnlyAuthIds;
 
         #region properties
+        public ReadOnlyObservableCollection<string> AuthIds => readOnlyAuthIds;
+
+        public string SelectedAuthId
+        {
+            get
+            {
+                return _selectedAuthId;
+            }
+
+            set
+            {
+                SetProperty(ref _selectedAuthId, value);
+                if (_selectedAuthId != null)
+                    UpdateModel(_selectedAuthId);
+                //if (selectedWellId != value)
+                //{
+                //    selectedWellId = value;
+
+                //   OnPropertyChanged();
+                //}
+            }
+        }
+
+        public static AuthorizationModel Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
         #region tablefields
         [Required]
         public string AuthId
@@ -68,7 +99,6 @@ namespace UIC_Edit_Workflow
         }
 
         [Required]
-        [UicValidations]
         public string AuthType
         {
             get
@@ -140,37 +170,6 @@ namespace UIC_Edit_Workflow
         }
 
         #endregion // End tablefields
-
-        public ReadOnlyObservableCollection<string> AuthIds => readOnlyAuthIds;
-
-        public string SelectedAuthId
-        {
-            get
-            {
-                return _selectedAuthId;
-            }
-
-            set
-            {
-                SetProperty(ref _selectedAuthId, value);
-                if (_selectedAuthId != null)
-                    UpdateModel(_selectedAuthId);
-                //if (selectedWellId != value)
-                //{
-                //    selectedWellId = value;
-
-                //   OnPropertyChanged();
-                //}
-            }
-        }
-
-        public static AuthorizationModel Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
         #endregion
 
         public async Task AddIdsForFacility(string facilityId)

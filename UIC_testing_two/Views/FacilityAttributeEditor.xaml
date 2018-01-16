@@ -13,11 +13,10 @@
             <ResourceDictionary.MergedDictionaries>
                 <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component\Themes\Default.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <SolidColorBrush x:Key="opaqueBrush" Color="Red" Opacity="1" />
             <BooleanToVisibilityConverter x:Key="boolToVis" />
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Background="#FFBCBCBC">
+    <Grid Opacity="1.0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -139,11 +138,11 @@
             </Grid.ColumnDefinitions>
 
             <DockPanel Grid.Row="0" Grid.ColumnSpan="2" LastChildFill="true" KeyboardNavigation.TabNavigation="Local" Height="30">
-                <TextBlock Grid.Column="1" Text="{Binding Heading}" VerticalAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Grid.Column="1" Text="New Inspection" VerticalAlignment="Center" HorizontalAlignment="Center"
                     FontSize="16" FontWeight="Light">
                     <TextBlock.ToolTip>
                         <WrapPanel Orientation="Vertical" MaxWidth="300">
-                            <TextBlock Text="{Binding Heading}" TextWrapping="Wrap"/>
+                            <TextBlock Text="New Inspection" TextWrapping="Wrap"/>
                         </WrapPanel>
                     </TextBlock.ToolTip>
             </TextBlock>
@@ -173,18 +172,6 @@
             <TextBox Grid.Row="4" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
                  Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=StartDate}"/>
-            <TextBlock Grid.Row="5" 
-                   HorizontalAlignment="Right" Margin="5" 
-                   Text="Expiration Date"/>
-            <TextBox Grid.Row="5" Grid.Column="1" 
-                 Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=ExpirationDate}"/>
-            <TextBlock Grid.Row="6" 
-                   HorizontalAlignment="Right" Margin="5" 
-                   Text="Comments"/>
-            <TextBox Grid.Row="6" Grid.Column="1"
-                 Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=Comments}"/>
         </Grid >
     </Grid>
 </UserControl>

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="UIC_Edit_Workflow.WellAttributeEditorView"
+﻿<UserControl x:Class="UIC_Edit_Workflow.AuthAttributeEditorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -7,13 +7,13 @@
              xmlns:extensions="clr-namespace:ArcGIS.Desktop.Extensions;assembly=ArcGIS.Desktop.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{Binding Path=ui.WellAttributeEditorViewModel}">
-     <UserControl.Resources>
+             d:DataContext="{Binding Path=ui.AuthAttributeEditorViewModel}">
+    <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <extensions:DesignOnlyResourceDictionary Source="pack://application:,,,/ArcGIS.Desktop.Framework;component\Themes\Default.xaml"/>
             </ResourceDictionary.MergedDictionaries>
- 
+            
             <Style TargetType="TextBox">
                 <Style.Triggers>
                     <Trigger Property="Validation.HasError"
@@ -26,8 +26,9 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="0,0,0,-33">
+    <Grid Margin="0,0,0,-54" Grid.Row="2">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -55,70 +56,43 @@
                 </TextBlock.ToolTip>
             </TextBlock>
         </DockPanel>
-
-        <ComboBox SelectedItem="{Binding Source={x:Static ui:WellModel.Instance}, Path=SelectedWellId, Mode=TwoWay}" Margin="5"
-                  ItemsSource="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
+        <ComboBox SelectedItem="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=SelectedAuthId, Mode=TwoWay}" Margin="5"
+                  ItemsSource="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=AuthIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
         <TextBlock Grid.Row="1" 
                    HorizontalAlignment="Right" Margin="5" 
-                   Text="WellId"/>
+                   Text="Auth ID"/>
         <TextBox Grid.Row="1" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellId,
-             ValidatesOnDataErrors=True}"/>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=AuthId, ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="2" 
                    HorizontalAlignment="Right" Margin="5" 
-                   Text="WellName"/>
+                   Text="Auth Type"/>
         <TextBox Grid.Row="2" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellName,
-            ValidatesOnDataErrors=True}"/>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=AuthType, ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="3" 
-                   HorizontalAlignment="Right" Margin="5" 
-                   Text="WellClass"/>
+                   HorizontalAlignment="Right" Margin="5"
+                   Text="Owner Sector Type"/>
         <TextBox Grid.Row="3" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellClass}"/>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=SectorType, ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="4" 
                    HorizontalAlignment="Right" Margin="5" 
-                   Text="WellSubClass"/>
+                   Text="Start Date"/>
         <TextBox Grid.Row="4" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellSubClass}"/>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=StartDate, ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="5" 
                    HorizontalAlignment="Right" Margin="5" 
-                   Text="HighPriority"/>
+                   Text="Expiration Date"/>
         <TextBox Grid.Row="5" Grid.Column="1" 
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=HighPriority}"/>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=ExpirationDate, ValidatesOnDataErrors=True}"/>
         <TextBlock Grid.Row="6" 
                    HorizontalAlignment="Right" Margin="5" 
-                   Text="WellSWPZ"/>
-        <TextBox Grid.Row="6" Grid.Column="1" 
-                 Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellSwpz}"/>
-        <TextBlock Grid.Row="7" 
-                   HorizontalAlignment="Right" Margin="5" 
-                   Text="LocationMethod"/>
-        <TextBox Grid.Row="7" Grid.Column="1" 
-                 Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=LocationMethod}"/>
-        <TextBlock Grid.Row="8" 
-                   HorizontalAlignment="Right" Margin="5" 
-                   Text="LocationAccuracy"/>
-        <TextBox Grid.Row="8" Grid.Column="1" 
-                 Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=LocationAccuracy}"/>
-        <TextBlock Grid.Row="9" 
-                   HorizontalAlignment="Right" Margin="5" 
                    Text="Comments"/>
-        <TextBox Grid.Row="9" Grid.Column="1" 
+        <TextBox Grid.Row="6" Grid.Column="1"
                  Height="20" HorizontalAlignment="Stretch" Margin="5" 
-                 Text="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellComments}"/>
-
-        <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2">
-            <Button HorizontalAlignment="Right" Margin="5" Content="Add Selected Point"/>
-            <Button HorizontalAlignment="Right" Margin="5" Content="Add Authorization"/>
-            <Button HorizontalAlignment="Right" Margin="5" Content="Explode"/>
-        </StackPanel>
-    </Grid>
+                 Text="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=Comments, ValidatesOnDataErrors=True}"/>
+    </Grid >
 </UserControl>

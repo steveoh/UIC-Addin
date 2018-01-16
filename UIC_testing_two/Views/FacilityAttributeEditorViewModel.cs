@@ -3,28 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
+using System.ComponentModel;
 
 namespace UIC_Edit_Workflow
 {
-    internal class WellAttributeEditorViewModel : DockPane
+    internal class FacilityAttributeEditorViewModel : DockPane
     {
-        private const string _dockPaneID = "UIC_Edit_Workflow_WellAttributeEditor";
+        private const string _dockPaneID = "UIC_Edit_Workflow_FacilityAttributeEditor";
         private FacilityModel uicModel = FacilityModel.Instance;
-        private WellModel wellModel = WellModel.Instance;
-
-        protected WellAttributeEditorViewModel()
+        protected FacilityAttributeEditorViewModel()
         {
-           
         }
 
-
-
-        /// <summary>
-        /// Show the DockPane.
-        /// </summary>
-        internal static void Show()
+    /// <summary>
+    /// Show the DockPane.
+    /// </summary>
+    internal static void Show()
         {
             DockPane pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID);
             if (pane == null)
@@ -36,7 +33,7 @@ namespace UIC_Edit_Workflow
         /// <summary>
         /// Text shown near the top of the DockPane.
         /// </summary>
-        private string _heading = "My DockPane";
+        private string _heading = "Facility Attributes";
         public string Heading
         {
             get { return _heading; }
@@ -45,16 +42,17 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _heading, value, () => Heading);
             }
         }
+
     }
 
     /// <summary>
     /// Button implementation to show the DockPane.
     /// </summary>
-    internal class WellAttributeEditor_ShowButton : Button
+    internal class AttributeEditor_ShowButton : Button
     {
         protected override void OnClick()
         {
-            WellAttributeEditorViewModel.Show();
+            FacilityAttributeEditorViewModel.Show();
         }
     }
 }

@@ -56,6 +56,37 @@ namespace UIC_Edit_Workflow
         private readonly ReadOnlyObservableCollection<string> readOnlyWellIds;
 
         #region properties
+        public ReadOnlyObservableCollection<string> WellIds => readOnlyWellIds;
+
+        public string SelectedWellId
+        {
+            get
+            {
+                return selectedWellId;
+            }
+
+            set
+            {
+                SetProperty(ref selectedWellId, value);
+                if (selectedWellId != null)
+                    UpdateModel(selectedWellId);
+                //if (selectedWellId != value)
+                //{
+                //    selectedWellId = value;
+
+                //   OnPropertyChanged();
+                //}
+            }
+        }
+
+        public static WellModel Instance
+        {
+            get
+            {
+                return instance;
+            }
+        }
+
         #region tablefields
         [Required]
         public string WellId
@@ -185,37 +216,6 @@ namespace UIC_Edit_Workflow
             }
         }
         #endregion // End tablefields
-
-        public ReadOnlyObservableCollection<string> WellIds => readOnlyWellIds;
-
-        public string SelectedWellId
-        {
-            get
-            {
-                return selectedWellId;
-            }
-
-            set
-            {
-                SetProperty(ref selectedWellId, value);
-                if (selectedWellId != null)
-                    UpdateModel(selectedWellId);
-                //if (selectedWellId != value)
-                //{
-                //    selectedWellId = value;
-
-                //   OnPropertyChanged();
-                //}
-            }
-        }
-
-        public static WellModel Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
         #endregion
 
         public async Task AddIdsForFacility(string facilityId)

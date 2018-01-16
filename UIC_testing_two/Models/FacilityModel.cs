@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace UIC_Edit_Workflow
 {
@@ -65,6 +66,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        [Required]
         public string UicFacilityId
         {
             get
@@ -77,6 +79,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _uicFacilityId, value);
             }
         }
+        [Required]
         public string FacilityGuid
         {
             get
@@ -89,6 +92,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityGuid, value);
             }
         }
+        [Required]
         public string CountyFips
         {
             get
@@ -101,6 +105,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _countyFips, value);
             }
         }
+        [Required]
         public string NaicsPrimary
         {
             get
@@ -113,6 +118,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _naicsPrimary, value);
             }
         }
+        [Required]
         public string FacilityName
         {
             get
@@ -126,6 +132,7 @@ namespace UIC_Edit_Workflow
                 IsDirty = true;
             }
         }
+        [Required]
         public string FacilityAddress
         {
             get
@@ -138,6 +145,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityAddress, value);
             }
         }
+        [Required]
         public string FacilityCity
         {
             get
@@ -150,6 +158,7 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityCity, value);
             }
         }
+        [Required]
         public string FacilityState
         {
             get
@@ -261,7 +270,12 @@ namespace UIC_Edit_Workflow
 
         public bool IsCountyFipsComplete()
         {
-            return !String.IsNullOrEmpty(this.CountyFips) && this.CountyFips.Length == 5;
+            bool isFipsError = GetErrors("CountyFips") == null;
+            return !String.IsNullOrEmpty(this.CountyFips) && this.CountyFips.Length == 5 && isFipsError;
+        }
+        public bool AreAttributesComplete()
+        {
+            return !this.HasErrors;
         }
 
     }

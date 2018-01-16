@@ -98,10 +98,14 @@
     <AddInContent Include="DarkImages\AddInDesktop32.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FacilityAttributeEditor.xaml.cs">
+    <Compile Include="Views\AuthAttributeEditor.xaml.cs">
+      <DependentUpon>AuthAttributeEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AuthAttributeEditorViewModel.cs" />
+    <Compile Include="Views\FacilityAttributeEditor.xaml.cs">
       <DependentUpon>FacilityAttributeEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FacilityAttributeEditorViewModel.cs" />
+    <Compile Include="Views\FacilityAttributeEditorViewModel.cs" />
     <Compile Include="Models\AuthorizationModel.cs" />
     <Compile Include="Models\BindableBase.cs" />
     <Compile Include="Models\IWorkTaskModel.cs" />
@@ -112,10 +116,10 @@
     <Compile Include="Validations\UicValidations.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="Models\ValidatableBindableBase.cs" />
-    <Compile Include="WellAttributeEditor.xaml.cs">
+    <Compile Include="Views\WellAttributeEditor.xaml.cs">
       <DependentUpon>WellAttributeEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WellAttributeEditorViewModel.cs" />
+    <Compile Include="Views\WellAttributeEditorViewModel.cs" />
     <Compile Include="Models\WellModel.cs" />
     <Compile Include="WorkFlowBehaviors.cs" />
     <Compile Include="WorkFlowPane.xaml.cs">
@@ -124,11 +128,15 @@
     <Compile Include="WorkFlowPaneViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="FacilityAttributeEditor.xaml">
+    <Page Include="Views\AuthAttributeEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WellAttributeEditor.xaml">
+    <Page Include="Views\FacilityAttributeEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\WellAttributeEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

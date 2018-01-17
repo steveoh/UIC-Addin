@@ -23,26 +23,28 @@
               an empty group-->
         <group id="UIC_Edit_Workflow_Group1" caption="Group 1" appearsOnAddInTab="true">
           <!-- host controls within groups -->
-          <button refID="UIC_Edit_Workflow_AttributeEditor_ShowButton" size="large" />
           <button refID="UIC_Edit_Workflow_WorkFlowPane_ShowButton" size="large" />
+          <!--<button refID="UIC_Edit_Workflow_AttributeEditor_ShowButton" size="large" />
           <button refID="UIC_Edit_Workflow_WellAttributeEditor_ShowButton" size="large" />
-          <button refID="UIC_Edit_Workflow_AuthAttributeEditor_ShowButton" size="large" />
+          <button refID="UIC_Edit_Workflow_AuthAttributeEditor_ShowButton" size="large" />-->
         </group>
       </groups>
       <controls>
         <!-- add your controls here -->
-        <button id="UIC_Edit_Workflow_AttributeEditor_ShowButton" caption="Show Facility Attributes" className="AttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
-          <tooltip heading="Show Dockpane">Show attribute editor<disabledText /></tooltip>
-        </button>
         <button id="UIC_Edit_Workflow_WorkFlowPane_ShowButton" caption="Show UIC WorkFlow" className="WorkFlowPane_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
-          <tooltip heading="Show Dockpane">Show Dockpane<disabledText /></tooltip>
+          <tooltip heading="Show Dockpane">
+            Show Dockpane<disabledText />
+          </tooltip>
         </button>
-        <button id="UIC_Edit_Workflow_WellAttributeEditor_ShowButton" caption="Show Well Attributes" className="WellAttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+        <!--<button id="UIC_Edit_Workflow_AttributeEditor_ShowButton" caption="Show Facility Attributes" className="AttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+          <tooltip heading="Show Dockpane">Show attribute editor<disabledText /></tooltip>
+        </button>-->
+        <!--<button id="UIC_Edit_Workflow_WellAttributeEditor_ShowButton" caption="Show Well Attributes" className="WellAttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
           <tooltip heading="Show Dockpane">Show Dockpane<disabledText /></tooltip>
-        </button>
-        <button id="UIC_Edit_Workflow_AuthAttributeEditor_ShowButton" caption="Show AuthAttributeEditor" className="AuthAttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+        </button>-->
+        <!--<button id="UIC_Edit_Workflow_AuthAttributeEditor_ShowButton" caption="Show AuthAttributeEditor" className="AuthAttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
           <tooltip heading="Show Dockpane">Show Dockpane<disabledText /></tooltip>
-        </button>
+        </button>-->
       </controls>
       <dockPanes>
         <dockPane id="UIC_Edit_Workflow_FacilityAttributeEditor" caption="Facility Editor" className="FacilityAttributeEditorViewModel" dock="group" dockWith="esri_core_projectDockPane">

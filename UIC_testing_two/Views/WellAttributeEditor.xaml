@@ -124,8 +124,6 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2">
             <Button HorizontalAlignment="Right" Margin="5" Content="Add Selected Point"/>
-            <Button HorizontalAlignment="Right" Margin="5" Content="Add Authorization"/>
-            <Button HorizontalAlignment="Right" Margin="5" Content="Explode"/>
         </StackPanel>
     </Grid>
 </UserControl>

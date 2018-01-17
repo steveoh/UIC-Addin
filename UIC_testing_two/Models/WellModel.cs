@@ -295,6 +295,12 @@ namespace UIC_Edit_Workflow
                    !String.IsNullOrEmpty(this.WellSwpz);
         }
 
+        public bool IsWellNameCorrect()
+        {
+            bool isWellNameError = GetErrors("WellName") == null;
+            return !String.IsNullOrEmpty(this.WellName) && isWellNameError;
+        }
+
         //Events
         public async void FacilityChangeHandler(string oldId, string newId, string facGuid)
         {

@@ -40,13 +40,13 @@ namespace UIC_Edit_Workflow
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
             WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "UIC facility"};
-            facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Create geometry"});
+            facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.AreAttributesComplete) { Title = "Populate attributes"});
             uicTaskRoot.Items.Add(facilityWork);
 
             WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "UIC Well Point"};
-            wellWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane", () => !wellModel.HasErrors) { Title = "Create geometry" });
+            wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellNameCorrect) { Title = "Well Name correct" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
             uicTaskRoot.Items.Add(wellWork);
 
@@ -465,7 +465,7 @@ namespace UIC_Edit_Workflow
     {
         protected override void OnClick()
         {
-            WorkFlowPaneViewModel.subRowEvent();
+            //WorkFlowPaneViewModel.subRowEvent();
             WorkFlowPaneViewModel.Show();
         }
     }

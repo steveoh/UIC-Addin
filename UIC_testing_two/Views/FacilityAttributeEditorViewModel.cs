@@ -13,7 +13,7 @@ namespace UIC_Edit_Workflow
     internal class FacilityAttributeEditorViewModel : DockPane
     {
         private const string _dockPaneID = "UIC_Edit_Workflow_FacilityAttributeEditor";
-        private FacilityModel uicModel = FacilityModel.Instance;
+        //private FacilityModel uicModel = FacilityModel.Instance;
         protected FacilityAttributeEditorViewModel()
         {
         }
@@ -41,6 +41,11 @@ namespace UIC_Edit_Workflow
             {
                 SetProperty(ref _heading, value, () => Heading);
             }
+        }
+
+        public void SetFacility(string facilityId)
+        {
+            Heading = string.Format("{0} Attributes");
         }
 
     }

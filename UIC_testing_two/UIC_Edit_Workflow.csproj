@@ -98,6 +98,7 @@
     <AddInContent Include="DarkImages\AddInDesktop32.png" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\InspectionModel.cs" />
     <Compile Include="Views\AuthAttributeEditor.xaml.cs">
       <DependentUpon>AuthAttributeEditor.xaml</DependentUpon>
     </Compile>

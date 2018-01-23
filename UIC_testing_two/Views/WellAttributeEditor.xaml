@@ -45,7 +45,7 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <DockPanel Grid.Row="0" Grid.ColumnSpan="2" LastChildFill="true" KeyboardNavigation.TabNavigation="Local" Height="30">
+        <!--<DockPanel Grid.Row="0" Grid.ColumnSpan="2" LastChildFill="true" KeyboardNavigation.TabNavigation="Local" Height="30">
             <TextBlock Grid.Column="1" Text="{Binding Heading}" VerticalAlignment="Center" HorizontalAlignment="Center"
                     FontSize="16" FontWeight="Light">
                 <TextBlock.ToolTip>
@@ -54,7 +54,7 @@
                     </WrapPanel>
                 </TextBlock.ToolTip>
             </TextBlock>
-        </DockPanel>
+        </DockPanel>-->
 
         <ComboBox SelectedItem="{Binding Source={x:Static ui:WellModel.Instance}, Path=SelectedWellId, Mode=TwoWay}" Margin="5"
                   ItemsSource="{Binding Source={x:Static ui:WellModel.Instance}, Path=WellIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>

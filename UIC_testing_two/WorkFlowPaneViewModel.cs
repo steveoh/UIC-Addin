@@ -25,10 +25,11 @@ namespace UIC_Edit_Workflow
         public FacilityModel FacilityModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
         public AuthorizationModel authModel =   AuthorizationModel.Instance;
+        public FacilityInspectionModel inspectionModel = FacilityInspectionModel.Instance;
 
         public WorkFlowPaneViewModel()
         {
-            models = new List<IWorkTaskModel>() { wellModel, authModel };
+            models = new List<IWorkTaskModel>() { wellModel, authModel, inspectionModel };
             foreach (IWorkTaskModel model in models)
             {
                 FacilityModel.FacilityChanged += model.FacilityChangeHandler;
@@ -38,19 +39,25 @@ namespace UIC_Edit_Workflow
             FacilityModel.PropertyChanged += this.CheckTaskItemsOnChange;
             //wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
             _workTasks = new ObservableCollection<WorkTask>();
-            WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Workflow"};
-            WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "UIC facility"};
+            WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Facility Workflow"};
+            WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Facility"};
             facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.AreAttributesComplete) { Title = "Populate attributes"});
+
+            WorkTask facilityInspectionWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Inspection" };
+            facilityInspectionWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry" });
+            facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.IsCountyFipsComplete) { Title = "Add county FIPS" });
+            facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.AreAttributesComplete) { Title = "Populate attributes" });
+            facilityWork.Items.Add(facilityInspectionWork);
             uicTaskRoot.Items.Add(facilityWork);
 
-            WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "UIC Well Point"};
+            WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Wells"};
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellNameCorrect) { Title = "Well Name correct" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
             uicTaskRoot.Items.Add(wellWork);
 
-            WorkTask authWork = new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "UIC Authorizations" };
+            WorkTask authWork = new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Authorizations" };
             authWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Facility FK" });
             authWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor", () => true) { Title = "Populate attributes" });
             uicTaskRoot.Items.Add(authWork);
@@ -58,6 +65,7 @@ namespace UIC_Edit_Workflow
             _workTasks.Add(uicTaskRoot);
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_WellAttributeEditor");
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_FacilityAttributeEditor");
+            FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_AuthAttributeEditor");
 
             ModelDirty = false;
         }
@@ -86,7 +94,7 @@ namespace UIC_Edit_Workflow
         //  behavior test method
         public void ChangeStuff()
         {
-            FacilityModel.FacilityName = "Hello there";
+            SetTaskItemsComplete(TableTasks[0]);
         }
 
         private bool _emptyFips = false;
@@ -167,6 +175,14 @@ namespace UIC_Edit_Workflow
         public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
         {
             CheckTaskItems(TableTasks[0]);
+        }
+        private void SetTaskItemsComplete(WorkTask workTask)
+        {
+            foreach (WorkTask item in workTask.Items)
+            {
+                SetTaskItemsComplete(item);
+            }
+            workTask.Complete = true;
         }
         private void CheckTaskItems(WorkTask workTask)
         {

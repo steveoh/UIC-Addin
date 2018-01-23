@@ -103,7 +103,7 @@ namespace UIC_Edit_Workflow
         }
 
         [Required]
-        [UicValidations]
+        [UicValidations(ErrorMessage = "{0} is not correct")]
         public string WellName
         {
             get

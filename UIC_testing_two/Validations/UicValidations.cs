@@ -13,10 +13,11 @@ namespace UIC_Edit_Workflow
         {
             return (string)value == "correct";
         }
+        public override string FormatErrorMessage(string name)
+        {
+            return String.Format(System.Globalization.CultureInfo.CurrentCulture,
+              ErrorMessageString, name);
+        }
     }
-    //public override string FormatErrorMessage(string name)
-    //{
-    //    return String.Format(CultureInfo.CurrentCulture,
-    //      ErrorMessageString, name, this.Mask);
-    //}
+
 }

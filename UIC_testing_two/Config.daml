@@ -31,9 +31,9 @@
       </groups>
       <controls>
         <!-- add your controls here -->
-        <button id="UIC_Edit_Workflow_WorkFlowPane_ShowButton" caption="Show UIC WorkFlow" className="WorkFlowPane_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
-          <tooltip heading="Show Dockpane">
-            Show Dockpane<disabledText />
+        <button id="UIC_Edit_Workflow_WorkFlowPane_ShowButton" caption="Start UIC WorkFlow" className="WorkFlowPane_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">
+          <tooltip heading="Show Workflow">
+            Show Workflow<disabledText />
           </tooltip>
         </button>
         <!--<button id="UIC_Edit_Workflow_AttributeEditor_ShowButton" caption="Show Facility Attributes" className="AttributeEditor_ShowButton" loadOnClick="true" smallImage="Images\GenericButtonPurple16.png" largeImage="Images\GenericButtonPurple32.png">

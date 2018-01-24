@@ -18,6 +18,7 @@ namespace UIC_Edit_Workflow
     {
         private readonly object lockCollection = new object();
         private static readonly WellModel instance = new WellModel();
+        public event ControllingIdChangeDelegate WellChanged;
         //private UICModel uicModel = null;
         private bool _isDirty;
  
@@ -43,6 +44,7 @@ namespace UIC_Edit_Workflow
         private string _locationMethod;
         private string _locationAccuracy;
         private string _wellComments;
+        private string _guidValue;
 
         private string _createdOn;
         private string _modifiedOn;
@@ -215,6 +217,20 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _wellComments, value);
             }
         }
+
+        public string WellGuid
+        {
+            get
+            {
+                return _guidValue;
+            }
+
+            set
+            {
+                SetProperty(ref _guidValue, value);
+            }
+        }
+
         #endregion // End tablefields
         #endregion
 
@@ -244,6 +260,7 @@ namespace UIC_Edit_Workflow
 
         public async Task UpdateModel(string wellId)
         {
+            string oldWellGuid = WellGuid;
             await QueuedTask.Run(() =>
             {
 
@@ -279,13 +296,15 @@ namespace UIC_Edit_Workflow
                             this.WellSwpz = Convert.ToString(row["WellSWPZ"]);
                             this.LocationMethod = Convert.ToString(row["LocationMethod"]);
                             this.LocationAccuracy = Convert.ToString(row["LocationAccuracy"]);
+                            this.WellGuid = Convert.ToString(row["GUID"]);
                         }
                     }
                 }
             });
+            WellChanged(oldWellGuid, this.WellGuid);
         }
 
-        public bool IsWellAtributesComplete()
+        public bool IsWellAttributesComplete()
         {
             return !String.IsNullOrEmpty(this.WellId) &&
                    !String.IsNullOrEmpty(this.WellName) &&

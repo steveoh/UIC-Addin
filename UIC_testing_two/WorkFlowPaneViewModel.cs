@@ -21,40 +21,52 @@ namespace UIC_Edit_Workflow
         private const string _dockPaneID = "UIC_Edit_Workflow_WorkFlowPane";
         private ObservableCollection<WorkTask> _workTasks;
         private int selectedUicId;
-        private List<IWorkTaskModel> models;
-        public FacilityModel FacilityModel = FacilityModel.Instance;
+        private List<IWorkTaskModel> facilityControlledModels;
+        private List<IWorkTaskModelFun> wellControlledModels;
+        public FacilityModel facilityModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
         public AuthorizationModel authModel =   AuthorizationModel.Instance;
-        public FacilityInspectionModel inspectionModel = FacilityInspectionModel.Instance;
+        public FacilityInspectionModel facilityInspectionModel = FacilityInspectionModel.Instance;
+        public WellInspectionModel wellInspectionModel = WellInspectionModel.Instance;
 
         public WorkFlowPaneViewModel()
         {
-            models = new List<IWorkTaskModel>() { wellModel, authModel, inspectionModel };
-            foreach (IWorkTaskModel model in models)
+            facilityControlledModels = new List<IWorkTaskModel>() { wellModel, authModel, facilityInspectionModel};
+            foreach (IWorkTaskModel model in facilityControlledModels)
             {
-                FacilityModel.FacilityChanged += model.FacilityChangeHandler;
+                facilityModel.FacilityChanged += model.FacilityChangeHandler;
                 INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
                 propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
             }
-            FacilityModel.PropertyChanged += this.CheckTaskItemsOnChange;
-            //wellModel.PropertyChanged += this.CheckTaskItemsOnChange;
+
+            wellControlledModels = new List<IWorkTaskModelFun>() { wellInspectionModel };
+            foreach (IWorkTaskModelFun model in wellControlledModels)
+            {
+                wellModel.WellChanged += model.ControllingIdChangedHandler;
+                INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
+                propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
+            }
+
+            facilityModel.PropertyChanged += this.CheckTaskItemsOnChange;
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Facility Workflow"};
             WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Facility"};
             facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry"});
-            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
-            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.AreAttributesComplete) { Title = "Populate attributes"});
+            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
+            facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.AreAttributesComplete) { Title = "Populate attributes"});
 
             WorkTask facilityInspectionWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Inspection" };
-            facilityInspectionWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry" });
-            facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.IsCountyFipsComplete) { Title = "Add county FIPS" });
-            facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", FacilityModel.AreAttributesComplete) { Title = "Populate attributes" });
+            facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
             facilityWork.Items.Add(facilityInspectionWork);
             uicTaskRoot.Items.Add(facilityWork);
 
             WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Wells"};
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellNameCorrect) { Title = "Well Name correct" });
-            wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAtributesComplete) { Title = "Populate attributes"});
+            wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAttributesComplete) { Title = "Populate attributes"});
+
+            WorkTask wellInspectionWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Inspection" };
+            wellInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", wellInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
+            wellWork.Items.Add(wellInspectionWork);
             uicTaskRoot.Items.Add(wellWork);
 
             WorkTask authWork = new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Authorizations" };
@@ -467,7 +479,7 @@ namespace UIC_Edit_Workflow
 
         private async void UpdateModel(string uicId)
         {
-            await FacilityModel.UpdateModel(uicId);
+            await facilityModel.UpdateModel(uicId);
             this.CheckTaskItems(TableTasks[0]);
         }
 

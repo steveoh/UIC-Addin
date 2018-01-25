@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace UIC_Edit_Workflow
 {
-    interface IWorkTaskModelFun
+    interface IWorkTaskModel
     {
-        Task UpdateModel(string facilityId);
+        Task UpdateModel(string controllingId);
         void ControllingIdChangedHandler(string oldGuid, string newGuid);
     }
 }

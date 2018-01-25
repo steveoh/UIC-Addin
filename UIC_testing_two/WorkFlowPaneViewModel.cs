@@ -22,7 +22,7 @@ namespace UIC_Edit_Workflow
         private ObservableCollection<WorkTask> _workTasks;
         private int selectedUicId;
         private List<IWorkTaskModel> facilityControlledModels;
-        private List<IWorkTaskModelFun> wellControlledModels;
+        private List<IWorkTaskModel> wellControlledModels;
         public FacilityModel facilityModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
         public AuthorizationModel authModel =   AuthorizationModel.Instance;
@@ -34,13 +34,13 @@ namespace UIC_Edit_Workflow
             facilityControlledModels = new List<IWorkTaskModel>() { wellModel, authModel, facilityInspectionModel};
             foreach (IWorkTaskModel model in facilityControlledModels)
             {
-                facilityModel.FacilityChanged += model.FacilityChangeHandler;
+                facilityModel.FacilityChanged += model.ControllingIdChangedHandler;
                 INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
                 propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
             }
 
-            wellControlledModels = new List<IWorkTaskModelFun>() { wellInspectionModel };
-            foreach (IWorkTaskModelFun model in wellControlledModels)
+            wellControlledModels = new List<IWorkTaskModel>() { wellInspectionModel };
+            foreach (IWorkTaskModel model in wellControlledModels)
             {
                 wellModel.WellChanged += model.ControllingIdChangedHandler;
                 INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;

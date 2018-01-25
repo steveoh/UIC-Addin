@@ -246,9 +246,8 @@ namespace UIC_Edit_Workflow
         }
 
         //Events
-        public async void FacilityChangeHandler(string oldId, string newId, string facGuid)
+        public async void ControllingIdChangedHandler(string oldId, string facGuid)
         {
-            System.Diagnostics.Debug.WriteLine($"Old id {oldId}, New Id {newId}");
             await AddIdsForFacility(facGuid);
             if (AuthIds.Count == 0)
             {

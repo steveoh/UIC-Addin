@@ -22,7 +22,7 @@ namespace UIC_Edit_Workflow
         private static readonly FacilityModel _instance = new FacilityModel();
         public const string ID_FIELD = "FacilityID";
         private WellModel _wellModel = WellModel.Instance;
-        public event FacilityChangeDelegate FacilityChanged;
+        public event ControllingIdChangeDelegate FacilityChanged;
 
         private FacilityModel()
         {
@@ -226,7 +226,7 @@ namespace UIC_Edit_Workflow
         {
             if (this.UicFacilityId != facilityId)
             {
-                string oldFacId = this.UicFacilityId;
+                string oldFacId = this.FacilityGuid;
                 await QueuedTask.Run(() =>
                 {
                     var map = MapView.Active.Map;
@@ -264,7 +264,7 @@ namespace UIC_Edit_Workflow
                     this.IsDirty = false;
                 });
                 System.Diagnostics.Debug.WriteLine("uicmodel UpdateUicFacility");
-                FacilityChanged(oldFacId, this.UicFacilityId, this._facilityGuid);
+                FacilityChanged(oldFacId, this.FacilityGuid);
             }
         }
 

@@ -230,7 +230,7 @@ namespace UIC_Edit_Workflow
         }
 
         //Events
-        public async void FacilityChangeHandler(string oldId, string newId, string facGuid)
+        public async void ControllingIdChangedHandler(string oldId, string facGuid)
         {
             //System.Diagnostics.Debug.WriteLine($"Old id {oldId}, New Id {newId}");
             await AddIdsForFacility(facGuid);
@@ -247,7 +247,7 @@ namespace UIC_Edit_Workflow
 
         }
     }
-    class WellInspectionModel : ValidatableBindableBase, IWorkTaskModelFun
+    class WellInspectionModel : ValidatableBindableBase, IWorkTaskModel
     {
         private readonly object lockCollection = new object();
         private static readonly WellInspectionModel instance = new WellInspectionModel();

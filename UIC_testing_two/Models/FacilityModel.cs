@@ -267,7 +267,8 @@ namespace UIC_Edit_Workflow
                 FacilityChanged(oldFacId, this.FacilityGuid);
             }
         }
-
+        
+        //Validation
         public bool IsCountyFipsComplete()
         {
             bool isFipsError = GetErrors("CountyFips") == null;

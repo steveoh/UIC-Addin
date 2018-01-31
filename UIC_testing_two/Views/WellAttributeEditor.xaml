@@ -132,7 +132,7 @@
                 ValidatesOnDataErrors=True}"/>
 
             <StackPanel Orientation="Horizontal" Grid.Row="10" Grid.ColumnSpan="2">
-                <Button HorizontalAlignment="Right" Margin="5" Content="Add Selected Point"/>
+                <Button HorizontalAlignment="Right" Margin="5" Content="Add Selected Point" Command="{Binding AddWell}"/>
             </StackPanel>
         </Grid>
         <GridSplitter HorizontalAlignment="Stretch"

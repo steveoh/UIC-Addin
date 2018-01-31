@@ -18,6 +18,7 @@ namespace UIC_Edit_Workflow
     {
         private readonly object lockCollection = new object();
         private static readonly WellModel instance = new WellModel();
+        public const string ID_FIELD = "WellID";
         public event ControllingIdChangeDelegate WellChanged;
         //private UICModel uicModel = null;
         private bool _isDirty;
@@ -304,6 +305,42 @@ namespace UIC_Edit_Workflow
             WellChanged(oldWellGuid, this.WellGuid);
         }
 
+        public async void AddNew(long objectId, string facilityGuid, string countyFips)
+        {
+            await QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { objectId };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update date";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                var map = MapView.Active.Map;
+                FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICWell").First();
+                insp.Load(uicWells, oidSet);
+
+                long fips;
+                long.TryParse(countyFips, out fips);
+
+                insp["Facility_FK"] = facilityGuid;
+
+                Guid newGuid = Guid.NewGuid();
+                string guidLast8 = newGuid.ToString();
+                guidLast8 = guidLast8.Substring(guidLast8.Length - 8);
+                insp["GUID"] = newGuid;
+
+                string newWellId = String.Format("UTU{0}{1}{2}", countyFips.Substring(countyFips.Length - 2), insp["WellClass"], guidLast8).ToUpper();
+                insp[WellModel.ID_FIELD] = newWellId;
+
+                op.Modify(insp);
+                op.Execute();
+                _facilityWellIds.Add(newWellId);
+                SelectedWellId = newWellId;
+
+            });
+
+        }
+        //Validation 
         public bool IsWellAttributesComplete()
         {
             return !String.IsNullOrEmpty(this.WellId) &&

@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
 
 namespace UIC_Edit_Workflow
 {
@@ -33,6 +34,7 @@ namespace UIC_Edit_Workflow
                 BindingOperations.EnableCollectionSynchronization(readOnlyWellIds, lockCollection);
             });
             _isDirty = false;
+            //LoadHash = calculateFieldHash();
 
         }
 
@@ -302,6 +304,7 @@ namespace UIC_Edit_Workflow
                     }
                 }
             });
+            LoadHash = calculateFieldHash();
             WellChanged(oldWellGuid, this.WellGuid);
         }
 
@@ -356,6 +359,54 @@ namespace UIC_Edit_Workflow
             bool isWellNameError = GetErrors("WellName") == null;
             return !String.IsNullOrEmpty(this.WellName) && isWellNameError;
         }
+
+        protected override string fieldValueString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Convert.ToString(WellId));
+            sb.Append(Convert.ToString(WellName));
+            sb.Append(Convert.ToString(WellClass));
+            sb.Append(Convert.ToString(WellSubClass));
+            sb.Append(Convert.ToString(HighPriority));
+            sb.Append(Convert.ToString(WellSwpz));
+            sb.Append(Convert.ToString(LocationMethod));
+            sb.Append(Convert.ToString(LocationAccuracy));
+            sb.Append(Convert.ToString(WellComments));
+            sb.Append(Convert.ToString(WellGuid));
+            return sb.ToString();
+        }
+
+        //private string calculateFieldHash()
+        //{
+        //    string input = fieldValueString();
+        //    // step 1, calculate MD5 hash from input
+
+        //    MD5 md5 = MD5.Create();
+
+        //    byte[] inputBytes = Encoding.ASCII.GetBytes(input);
+
+        //    byte[] hash = md5.ComputeHash(inputBytes);
+
+        //    // step 2, convert byte array to hex string
+
+        //    StringBuilder sb = new StringBuilder();
+
+        //    for (int i = 0; i < hash.Length; i++)
+
+        //    {
+
+        //        sb.Append(hash[i].ToString("X2"));
+
+        //    }
+
+        //    return sb.ToString();
+
+        //}
+
+        //public bool HasModelChanged()
+        //{
+        //    return LoadHash.Equals(calculateFieldHash());
+        //}
 
         //Events
         public async void ControllingIdChangedHandler(string oldId, string facGuid)

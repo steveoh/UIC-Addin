@@ -56,8 +56,9 @@
                 </TextBlock.ToolTip>
             </TextBlock>
         </DockPanel>-->
-        <ComboBox SelectedItem="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=SelectedAuthId, Mode=TwoWay}" Margin="5"
-                  ItemsSource="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=AuthIds, Mode=OneWay}" Grid.Column="1" ></ComboBox>
+        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=SelectedAuthId, Mode=TwoWay}" Margin="5"
+                  ItemsSource="{Binding Source={x:Static ui:AuthorizationModel.Instance}, Path=AuthIds, Mode=OneWay}"></ComboBox>
+        <Button Grid.Row="0" Content="Add New Inspection" Command="{Binding AddRecord}"/>
         <TextBlock Grid.Row="1" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="Auth ID"/>

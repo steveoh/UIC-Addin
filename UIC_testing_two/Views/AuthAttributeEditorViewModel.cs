@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using ArcGIS.Desktop.Framework;
 using ArcGIS.Desktop.Framework.Contracts;
+using System.Windows.Input;
 
 namespace UIC_Edit_Workflow
 {
     internal class AuthAttributeEditorViewModel : DockPane
     {
         private const string _dockPaneID = "UIC_Edit_Workflow_AuthAttributeEditor";
+        private FacilityModel _facilityModel = FacilityModel.Instance;
+        private AuthorizationModel _authModel = AuthorizationModel.Instance;
 
         protected AuthAttributeEditorViewModel() { }
 
@@ -37,6 +40,26 @@ namespace UIC_Edit_Workflow
             {
                 SetProperty(ref _heading, value, () => Heading);
             }
+        }
+
+        private RelayCommand _addNewRecord;
+        public ICommand AddRecord
+        {
+            get
+            {
+                if (_addNewRecord == null)
+                {
+                    _addNewRecord = new RelayCommand(() => AddNewRecord(), () => { return true; });
+                }
+                return _addNewRecord;
+            }
+        }
+        private void AddNewRecord()
+        {
+            string facGuid = _facilityModel.FacilityGuid;
+            string facFips = _facilityModel.CountyFips;
+
+            _authModel.AddNew(facGuid, facFips);
         }
     }
 

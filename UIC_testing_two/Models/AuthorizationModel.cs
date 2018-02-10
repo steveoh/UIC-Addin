@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
+using ArcGIS.Desktop.Editing;
 
 namespace UIC_Edit_Workflow
 {
@@ -21,7 +22,7 @@ namespace UIC_Edit_Workflow
         //private UICModel uicModel = null;
         private bool _isDirty;
 
-        private AuthorizationModel()
+        private AuthorizationModel() : base()
         {
             //uicModel = UICModel.Instance;
             //uicModel.FacilityChanged = new FacilityChangeDelegate(facChangeHandler);
@@ -48,6 +49,7 @@ namespace UIC_Edit_Workflow
 
         private string _selectedAuthId;
 
+
         private readonly ObservableCollection<string> _facilityAuthIds = new ObservableCollection<string>();
         private readonly ReadOnlyObservableCollection<string> readOnlyAuthIds;
 
@@ -66,12 +68,6 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _selectedAuthId, value);
                 if (_selectedAuthId != null)
                     UpdateModel(_selectedAuthId);
-                //if (selectedWellId != value)
-                //{
-                //    selectedWellId = value;
-
-                //   OnPropertyChanged();
-                //}
             }
         }
 
@@ -170,6 +166,17 @@ namespace UIC_Edit_Workflow
         }
 
         #endregion // End tablefields
+        protected override string fieldValueString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Convert.ToString(AuthId));
+            sb.Append(Convert.ToString(AuthType));
+            sb.Append(Convert.ToString(SectorType));
+            sb.Append(Convert.ToString(StartDate));
+            sb.Append(Convert.ToString(ExpirationDate));
+            sb.Append(Convert.ToString(Comments));
+            return sb.ToString();
+        }
         #endregion
 
         public async Task AddIdsForFacility(string facilityId)
@@ -178,12 +185,12 @@ namespace UIC_Edit_Workflow
             {
                 _facilityAuthIds.Clear();
                 var map = MapView.Active.Map;
-                StandaloneTable uicWells = (StandaloneTable)map.FindStandaloneTables("UICAuthorization").First();
+                StandaloneTable uicAuth = (StandaloneTable)map.FindStandaloneTables("UICAuthorization").First();
                 QueryFilter qf = new QueryFilter()
                 {
                     WhereClause = string.Format("Facility_FK = '{0}'", facilityId)
                 };
-                using (RowCursor cursor = uicWells.Search(qf))
+                using (RowCursor cursor = uicAuth.Search(qf))
                 {
                     while (cursor.MoveNext())
                     {
@@ -233,6 +240,7 @@ namespace UIC_Edit_Workflow
                     }
                 }
             });
+            LoadHash = calculateFieldHash();
         }
 
         public bool IsWellAtributesComplete()
@@ -260,6 +268,32 @@ namespace UIC_Edit_Workflow
                 SelectedAuthId = AuthIds.First();
             }
 
+        }
+
+        public async void AddNew(string facilityGuid, string countyFips)
+        {
+            await QueuedTask.Run(() =>
+            {
+                Guid newGuid = Guid.NewGuid();
+                string guidLast7 = newGuid.ToString();
+                guidLast7 = guidLast7.Substring(guidLast7.Length - 7);
+
+                string authId = String.Format("UTU{0}{1}{2}", countyFips.Substring(countyFips.Length - 2), "NO", guidLast7).ToUpper();
+                //Create list of oids to update
+                var attributes = new Dictionary<string, object>();
+                attributes.Add("Facility_FK", facilityGuid);
+                attributes.Add("AuthorizationID", authId);
+                attributes.Add("GUID", newGuid);
+
+                var map = MapView.Active.Map;
+                StandaloneTable uicAuth = (StandaloneTable)map.FindStandaloneTables("UICAuthorization").First();
+                var createFeatures = new EditOperation();
+                createFeatures.Name = "Create Features";
+                createFeatures.Create(uicAuth, attributes);
+                createFeatures.Execute();
+                _facilityAuthIds.Add(authId);
+                SelectedAuthId = authId;
+            });
         }
     }
 }

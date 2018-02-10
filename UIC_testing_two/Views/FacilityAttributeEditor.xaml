@@ -169,7 +169,7 @@
             </DockPanel>
             <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding Source={x:Static ui:FacilityInspectionModel.Instance}, Path=SelectedInspectionId, Mode=TwoWay}" Margin="5"
                   ItemsSource="{Binding Source={x:Static ui:FacilityInspectionModel.Instance}, Path=InspectionIds, Mode=OneWay}"></ComboBox>
-            <Button Grid.Row="1" Content="Add New Inspection"/>
+            <Button Grid.Row="1" Content="Add New Inspection" Command="{Binding AddInspectionRecord}"/>
             <TextBlock Grid.Row="2" 
                    HorizontalAlignment="Right" Margin="5" 
                    Text="Inspector"/>

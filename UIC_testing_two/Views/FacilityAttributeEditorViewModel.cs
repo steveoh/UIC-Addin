@@ -13,6 +13,8 @@ namespace UIC_Edit_Workflow
     internal class FacilityAttributeEditorViewModel : DockPane
     {
         private const string _dockPaneID = "UIC_Edit_Workflow_FacilityAttributeEditor";
+        private FacilityModel _facilityModel = FacilityModel.Instance;
+        private FacilityInspectionModel _inspectionModel = FacilityInspectionModel.Instance;
         //private FacilityModel uicModel = FacilityModel.Instance;
         protected FacilityAttributeEditorViewModel()
         {
@@ -48,6 +50,24 @@ namespace UIC_Edit_Workflow
             Heading = string.Format("{0} Attributes");
         }
 
+        private RelayCommand _addNewInspection;
+        public ICommand AddInspectionRecord
+        {
+            get
+            {
+                if (_addNewInspection == null)
+                {
+                    _addNewInspection = new RelayCommand(() => AddNewInspection(), () => { return true; });
+                }
+                return _addNewInspection;
+            }
+        }
+        private void AddNewInspection()
+        {
+            string facGuid = _facilityModel.FacilityGuid;
+
+            _inspectionModel.AddNew(facGuid);
+        }
     }
 
     /// <summary>

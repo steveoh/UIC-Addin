@@ -10,11 +10,26 @@ namespace UIC_Edit_Workflow
 {
     class BindableBase : INotifyPropertyChanged
     {
+        bool _modelDirty;
+        public bool ModelDirty
+        {
+            get
+            {
+                return _modelDirty;
+            }
+
+            set
+            {
+                _modelDirty = value;
+            }
+        }
+
         protected virtual void SetProperty<T>(ref T member, T val,
             [CallerMemberName] string propertyName = null)
         {
             if (object.Equals(member, val)) return;
 
+            ModelDirty = true;
             member = val;
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }

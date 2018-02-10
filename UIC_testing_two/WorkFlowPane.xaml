@@ -64,7 +64,7 @@
                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1">
                     <Button Margin="5" Command="" ToolTip="Save Changes" Content="Save" Visibility="Hidden">
                         <i:Interaction.Behaviors>
-                            <ui:WorkFlowBehaviors NeedsSave="{Binding Source={x:Static ui:FacilityModel.Instance}, Path=IsDirty}"/>
+                            <ui:WorkFlowBehaviors NeedsSave="{Binding AreModelsDirty}"/>
                         </i:Interaction.Behaviors>
                     </Button>
                     <TextBlock Margin="27,5,5,5" Text="{Binding UicSuggestion}" Width="100">

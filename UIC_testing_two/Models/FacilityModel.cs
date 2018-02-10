@@ -208,6 +208,23 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        protected override string fieldValueString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append(Convert.ToString(UicFacilityId));
+            sb.Append(Convert.ToString(FacilityGuid));
+            sb.Append(Convert.ToString(CountyFips));
+            sb.Append(Convert.ToString(NaicsPrimary));
+            sb.Append(Convert.ToString(FacilityName));
+            sb.Append(Convert.ToString(FacilityAddress));
+            sb.Append(Convert.ToString(FacilityCity));
+            sb.Append(Convert.ToString(FacilityState));
+            sb.Append(Convert.ToString(FacilityZip));
+            sb.Append(Convert.ToString(FacilityMilepost));
+            sb.Append(Convert.ToString(Comments));
+            return sb.ToString();
+        }
+
         public bool EditReady
         {
             get
@@ -264,6 +281,7 @@ namespace UIC_Edit_Workflow
                     this.IsDirty = false;
                 });
                 System.Diagnostics.Debug.WriteLine("uicmodel UpdateUicFacility");
+                LoadHash = calculateFieldHash();
                 FacilityChanged(oldFacId, this.FacilityGuid);
             }
         }

@@ -13,6 +13,7 @@ using ArcGIS.Desktop.Editing.Events;
 using ArcGIS.Desktop.Framework.Dialogs;
 using System.ComponentModel;
 using ArcGIS.Core.Data;
+using ArcGIS.Desktop.Mapping.Events;
 
 namespace UIC_Edit_Workflow
 {
@@ -23,6 +24,7 @@ namespace UIC_Edit_Workflow
         private int selectedUicId;
         private List<IWorkTaskModel> facilityControlledModels;
         private List<IWorkTaskModel> wellControlledModels;
+        private List<BindableBase> allModels;
         public FacilityModel facilityModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
         public AuthorizationModel authModel =   AuthorizationModel.Instance;
@@ -31,12 +33,14 @@ namespace UIC_Edit_Workflow
 
         public WorkFlowPaneViewModel()
         {
+            allModels = new List<BindableBase>();
             facilityControlledModels = new List<IWorkTaskModel>() { wellModel, authModel, facilityInspectionModel};
             foreach (IWorkTaskModel model in facilityControlledModels)
             {
                 facilityModel.FacilityChanged += model.ControllingIdChangedHandler;
                 INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
                 propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
+                allModels.Add(((BindableBase)model));
             }
 
             wellControlledModels = new List<IWorkTaskModel>() { wellInspectionModel };
@@ -45,9 +49,11 @@ namespace UIC_Edit_Workflow
                 wellModel.WellChanged += model.ControllingIdChangedHandler;
                 INotifyPropertyChanged propertyModel = (INotifyPropertyChanged)model;
                 propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
+                allModels.Add(((BindableBase)model));
             }
 
             facilityModel.PropertyChanged += this.CheckTaskItemsOnChange;
+            allModels.Add((BindableBase)facilityModel);
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Facility Workflow"};
             WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Facility"};
@@ -79,7 +85,7 @@ namespace UIC_Edit_Workflow
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_FacilityAttributeEditor");
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_AuthAttributeEditor");
 
-            ModelDirty = false;
+            AreModelsDirty = false;
         }
 
         protected BasicFeatureLayer FindFacilities()
@@ -123,7 +129,7 @@ namespace UIC_Edit_Workflow
             }
         }
         private bool _modelDirty;
-        public bool ModelDirty
+        public bool AreModelsDirty
         {
             get
             {
@@ -132,7 +138,7 @@ namespace UIC_Edit_Workflow
 
             set
             {
-                SetProperty(ref _modelDirty, value, () => ModelDirty);
+                SetProperty(ref _modelDirty, value, () => AreModelsDirty);
             }
         }
 
@@ -146,6 +152,7 @@ namespace UIC_Edit_Workflow
                 return;
             pane.Activate();
         }
+
         internal static void subRowEvent()
         {
             WorkFlowPaneViewModel pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID) as WorkFlowPaneViewModel;
@@ -186,6 +193,18 @@ namespace UIC_Edit_Workflow
         }
         public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
         {
+            //bool modelDirty = wellModel.HasModelChanged();
+            //this.AreModelsDirty = modelDirty;
+            bool areAllModelsClean = true;
+            foreach (ValidatableBindableBase dataModel in allModels)
+            {
+                if (dataModel.HasModelChanged())
+                {
+                    areAllModelsClean = false;
+                }
+            }
+            this.AreModelsDirty = !areAllModelsClean;
+
             CheckTaskItems(TableTasks[0]);
         }
         private void SetTaskItemsComplete(WorkTask workTask)
@@ -401,7 +420,6 @@ namespace UIC_Edit_Workflow
         {
             Task t = QueuedTask.Run(() =>
             {
-                ModelDirty = true;
                 string selectedId;
                 string countyFips;
                 var currentSelection = SelectedLayer.GetSelection();
@@ -480,6 +498,7 @@ namespace UIC_Edit_Workflow
         private async void UpdateModel(string uicId)
         {
             await facilityModel.UpdateModel(uicId);
+            AreModelsDirty = false;
             this.CheckTaskItems(TableTasks[0]);
         }
 
@@ -511,6 +530,7 @@ namespace UIC_Edit_Workflow
                 this.IsComplete += this.AreChildrenComplete;
 
             this.Complete = false;
+            this.IsExpanded = true;
         }
 
         public IsTaskCompelted IsComplete;

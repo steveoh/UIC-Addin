@@ -88,18 +88,8 @@ namespace UIC_Edit_Workflow
                         selectedId = Convert.ToInt64(row["OBJECTID"]);
                     }
                 }
-                //if (String.IsNullOrWhiteSpace(selectedId))
-                //{
-                //    if (String.IsNullOrWhiteSpace(selectedId))
-                //    {
-                //        EmptyFips = true;
-                //    }
-                //    else
-                //    {
-                //        //Create Id from fips and global
-                //    }
-                //}
                 _wellModel.AddNew(selectedId, _facilityModel.FacilityGuid, _facilityModel.CountyFips);
+                NewWellSelected = false;
             });
             return t;
         }

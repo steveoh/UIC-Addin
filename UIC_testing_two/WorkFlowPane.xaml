@@ -62,7 +62,7 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Grid.ColumnSpan="1">
-                    <Button Margin="5" Command="" ToolTip="Save Changes" Content="Save" Visibility="Hidden">
+                    <Button Margin="5" Command="{Binding SaveModels}" ToolTip="Save Changes" Content="Save" Visibility="Hidden">
                         <i:Interaction.Behaviors>
                             <ui:WorkFlowBehaviors NeedsSave="{Binding AreModelsDirty}"/>
                         </i:Interaction.Behaviors>

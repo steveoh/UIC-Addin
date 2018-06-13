@@ -14,6 +14,8 @@ using ArcGIS.Desktop.Framework.Dialogs;
 using System.ComponentModel;
 using ArcGIS.Core.Data;
 using ArcGIS.Desktop.Mapping.Events;
+using ArcGIS.Core.Geometry;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -57,7 +59,7 @@ namespace UIC_Edit_Workflow
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Facility Workflow"};
             WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Facility"};
-            facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Geometry"});
+            facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Add New Geometry"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.AreAttributesComplete) { Title = "Populate attributes"});
 
@@ -67,16 +69,16 @@ namespace UIC_Edit_Workflow
             uicTaskRoot.Items.Add(facilityWork);
 
             WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Wells"};
+            wellWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Add New Geometry" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellNameCorrect) { Title = "Well Name correct" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAttributesComplete) { Title = "Populate attributes"});
 
-            WorkTask wellInspectionWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Inspection" };
-            wellInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", wellInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
+            WorkTask wellInspectionWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Inspection" };
+            wellInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
             wellWork.Items.Add(wellInspectionWork);
             uicTaskRoot.Items.Add(wellWork);
 
             WorkTask authWork = new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Authorizations" };
-            authWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Facility FK" });
             authWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor", () => true) { Title = "Populate attributes" });
             uicTaskRoot.Items.Add(authWork);
 
@@ -102,9 +104,9 @@ namespace UIC_Edit_Workflow
                 //    });
                 //    return;
                 //}
-                FeatureLayer uicWells = (FeatureLayer)MapView.Active.Map.FindLayers("UICFacility").First();
-                var layerTable = uicWells.GetTable();
-                return uicWells as BasicFeatureLayer;
+                FeatureLayer uicFacilities = (FeatureLayer)MapView.Active.Map.FindLayers("UICFacility").First();
+                var layerTable = uicFacilities.GetTable();
+                return uicFacilities as BasicFeatureLayer;
             }).Result;
             return facFeature;
         }
@@ -190,6 +192,26 @@ namespace UIC_Edit_Workflow
         {
             var row = args.Row;
             //UpdateModel(Convert.ToString(row["FacilityID"]));
+        }
+        public void SaveDirtyModels()
+        {
+            wellInspectionModel.SaveChanges();
+            //bool modelDirty = wellInspectionModel.HasModelChanged();
+            //if (modelDirty)
+            //{
+            //    wellInspectionModel.SaveChanges();
+            //}
+            //bool areAllModelsClean = true;
+            //foreach (ValidatableBindableBase dataModel in allModels)
+            //{
+            //    if (dataModel.HasModelChanged())
+            //    {
+            //        areAllModelsClean = false;
+            //    }
+            //}
+            //this.AreModelsDirty = !areAllModelsClean;
+
+            //CheckTaskItems(TableTasks[0]);
         }
         public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
         {
@@ -416,38 +438,62 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private RelayCommand _saveModelsCmd;
+        public ICommand SaveModels
+        {
+            get
+            {
+                if (_newSelectionCmd == null)
+                {
+                    _newSelectionCmd = new RelayCommand(() => SaveDirtyModels(), () => { return true; });
+                }
+                return _newSelectionCmd;
+            }
+        }
+
         private Task GetSelectedFeature()
         {
-            Task t = QueuedTask.Run(() =>
+            Task t = QueuedTask.Run(async () =>
             {
                 string selectedId;
                 string countyFips;
+                Polygon facilityPoly;
                 var currentSelection = SelectedLayer.GetSelection();
                 using (RowCursor cursor = currentSelection.Search())
                 {
                     bool hasRow = cursor.MoveNext();
                     using (Row row = cursor.Current)
                     {
+                        Feature facilityFeature = row as Feature;
+                        facilityPoly = facilityFeature.GetShape() as Polygon;
+
                         selectedId = Convert.ToString(row[FacilityModel.ID_FIELD]);
                         countyFips = Convert.ToString(row["CountyFIPS"]);
                         SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                     }
                 }
+
+                if (String.IsNullOrWhiteSpace(countyFips))
+                {
+                    // verify it is simple
+                    bool isSimple = GeometryEngine.Instance.IsSimpleAsFeature(facilityPoly);
+                    // find the centroid
+                    MapPoint facCentroid = GeometryEngine.Instance.Centroid(facilityPoly);
+                    await AssignCountyFips(facCentroid);
+
+                }
+                else
+                {
+                    SelectedFips = countyFips;
+                }
                 if (String.IsNullOrWhiteSpace(selectedId))
                 {
-                    if (String.IsNullOrWhiteSpace(countyFips))
-                    {
-                        EmptyFips = true;
-                    }
-                    else
-                    {
-                        //Create Id from fips and global
-                    }
+                    await AssignFacilityId();
                 }
- 
-                UicSelection = selectedId;
-                SelectedFips = countyFips;
-
+                else
+                {
+                    UicSelection = selectedId;
+                }
             });
             return t;
         }
@@ -474,25 +520,70 @@ namespace UIC_Edit_Workflow
                 var oidSet = new List<long>() { SelectedOid };
                 //Create edit operation and update
                 var op = new ArcGIS.Desktop.Editing.EditOperation();
-                op.Name = "Update date";
+                op.Name = "Update id";
                 var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
                 insp.Load(SelectedLayer, oidSet);
 
-                long fips;
-                long.TryParse(SelectedFips, out fips);
-                insp["CountyFIPS"] = fips;
-                Guid newGuid = Guid.NewGuid();
-                string guidLast8 = newGuid.ToString();
+                long fips = Convert.ToInt64(insp["CountyFIPS"]);
+                //long.TryParse(SelectedFips, out fips);
+                //insp["CountyFIPS"] = fips;
+
+                string currentGuid = Convert.ToString(insp["GUID"]);
+                Guid facGuid;
+                bool hasGuid = Guid.TryParse(currentGuid, out facGuid);
+                if (!hasGuid)
+                {
+                    facGuid = Guid.NewGuid();
+                    insp["GUID"] = facGuid;
+                }
+
+                string guidLast8 = facGuid.ToString();
                 guidLast8 = guidLast8.Substring(guidLast8.Length - 8);
-                insp["GUID"] = newGuid;
                 string newFacilityId = String.Format("UTU{0}F{1}", SelectedFips.Substring(SelectedFips.Length - 2), guidLast8).ToUpper();
                 insp[FacilityModel.ID_FIELD] = newFacilityId;
+                //insp.ApplyAsync();
 
                 op.Modify(insp);
                 op.Execute();
                 UicSelection = newFacilityId;
+                Project.Current.SaveEditsAsync();
             });
             return t;
+        }
+        public Task AssignCountyFips(MapPoint facCentroid)
+        {
+            return QueuedTask.Run(async () => {
+                var map = MapView.Active.Map;
+                string foundFips = "foundFips";
+                FeatureLayer counties = (FeatureLayer)map.FindLayers("Counties").First();
+                // Using a spatial query filter to find all features which have a certain district name and lying within a given Polygon.
+                SpatialQueryFilter spatialQueryFilter = new SpatialQueryFilter
+                {
+                    FilterGeometry = facCentroid,
+                    SpatialRelationship = SpatialRelationship.Within
+                };
+
+                using (RowCursor cursor = counties.Search(spatialQueryFilter))
+                {
+                    while (cursor.MoveNext())
+                    {
+                        using (Feature feature = (Feature)cursor.Current)
+                        {
+                            // Process the feature. For example..
+                            SelectedFips = Convert.ToString(feature["FIPS_STR"]);
+                        }
+                    }
+                }
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update fips";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(SelectedLayer, oidSet);
+                insp["CountyFIPS"] = SelectedFips;
+                await insp.ApplyAsync();
+                await Project.Current.SaveEditsAsync();
+            });
         }
 
         private async void UpdateModel(string uicId)

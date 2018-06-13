@@ -119,6 +119,7 @@ namespace UIC_Edit_Workflow
             }
         }
         [Required]
+        [NameTest]
         public string FacilityName
         {
             get

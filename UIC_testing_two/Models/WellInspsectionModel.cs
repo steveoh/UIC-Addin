@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 using ArcGIS.Desktop.Editing;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -31,6 +32,7 @@ namespace UIC_Edit_Workflow
         }
 
         private string _selectedInspectionId;
+        private long _selectedOid;
         private StandaloneTable _storeFeature = null;
         private bool _isDirty;
 
@@ -64,6 +66,19 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _selectedInspectionId, value);
                 if (_selectedInspectionId != null)
                     UpdateModel(_selectedInspectionId);
+            }
+        }
+
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
             }
         }
 
@@ -237,6 +252,7 @@ namespace UIC_Edit_Workflow
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
                         {
+                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                             this.WellFk = Convert.ToString(row["Well_FK"]);
                             this.InspectionId = Convert.ToString(row["GUID"]);
                             this.Inspector = Convert.ToString(row["Inspector"]);
@@ -275,6 +291,32 @@ namespace UIC_Edit_Workflow
                 SelectedInspectionId = InspectionIds.First();
             }
 
+        }
+
+        public Task SaveChanges()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update Feature";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(StoreFeature, oidSet);
+
+                insp["Well_FK"] = this.WellFk;
+                insp["GUID"] = this.InspectionId;
+                insp["Inspector"] = this.InspectionId;
+                insp["InspectionType"] = this.InspectionType;
+                insp["InspectionDate"] = this.InspectionDate;
+                insp["Comments"] = this.Comments;
+
+                op.Modify(insp);
+                op.Execute();
+                Project.Current.SaveEditsAsync();
+            });
+            return t;
         }
 
         public async void AddNew(string facilityGuid)

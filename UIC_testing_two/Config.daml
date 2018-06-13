@@ -56,7 +56,7 @@
         <dockPane id="UIC_Edit_Workflow_WellAttributeEditor" caption="Well Editor" className="WellAttributeEditorViewModel" dock="group" dockWith="esri_core_projectDockPane">
           <content className="WellAttributeEditorView" />
         </dockPane>
-        <dockPane id="UIC_Edit_Workflow_AuthAttributeEditor" caption="AuthAttributeEditor" className="AuthAttributeEditorViewModel" dock="group" dockWith="esri_core_projectDockPane">
+        <dockPane id="UIC_Edit_Workflow_AuthAttributeEditor" caption="Authorization Editor" className="AuthAttributeEditorViewModel" dock="group" dockWith="esri_core_projectDockPane">
           <content className="AuthAttributeEditorView" />
         </dockPane>
       </dockPanes>

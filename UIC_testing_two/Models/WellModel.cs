@@ -74,7 +74,7 @@ namespace UIC_Edit_Workflow
             {
                 SetProperty(ref selectedWellId, value);
                 if (selectedWellId != null)
-                    UpdateModel(selectedWellId);
+                   UpdateModel(selectedWellId);
                 //if (selectedWellId != value)
                 //{
                 //    selectedWellId = value;
@@ -277,6 +277,7 @@ namespace UIC_Edit_Workflow
                     this.WellSwpz = "";
                     this.LocationMethod = "";
                     this.LocationAccuracy = "";
+                    this.WellGuid = "";
                 }
                 else
                 {
@@ -312,7 +313,7 @@ namespace UIC_Edit_Workflow
         {
             await QueuedTask.Run(() =>
             {
-                //Create list of oids to update
+                //Create list contianing the new well OID
                 var oidSet = new List<long>() { objectId };
                 //Create edit operation and update
                 var op = new ArcGIS.Desktop.Editing.EditOperation();

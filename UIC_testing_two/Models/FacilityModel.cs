@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -46,6 +47,37 @@ namespace UIC_Edit_Workflow
         private bool _editReady;
 
         #region properties
+        private long _selectedOid;
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
+            }
+        }
+        private FeatureLayer _storeFeature;
+        public FeatureLayer StoreFeature
+        {
+            get
+            {
+                if (_storeFeature == null)
+                {
+
+                    _storeFeature = QueuedTask.Run(() =>
+                    {
+                        var map = MapView.Active.Map;
+                        var feature = (FeatureLayer)map.FindLayers("UICFacility").First();
+                        return feature as FeatureLayer;
+                    }).Result;
+                }
+                return _storeFeature;
+            }
+        }
         public static FacilityModel Instance
         {
             get
@@ -258,6 +290,7 @@ namespace UIC_Edit_Workflow
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
                         {
+                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                             this.UicFacilityId = Convert.ToString(row["FacilityID"]);
                             this.CountyFips = Convert.ToString(row["CountyFIPS"]);
                             this.NaicsPrimary = Convert.ToString(row["NAICSPrimary"]);
@@ -286,7 +319,36 @@ namespace UIC_Edit_Workflow
                 FacilityChanged(oldFacId, this.FacilityGuid);
             }
         }
-        
+
+        public Task SaveChanges()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update Feature";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(StoreFeature, oidSet);
+
+                insp["CountyFIPS"] = this.CountyFips;
+                insp["NAICSPrimary"] = this.NaicsPrimary;
+                insp["FacilityName"] = this.FacilityName;
+                insp["FacilityAddress"] = this.FacilityAddress;
+                insp["FacilityCity"] = this.FacilityCity;
+                insp["FacilityState"] = this.FacilityState;
+                insp["FacilityZip"] = this.FacilityZip;
+                insp["FacilityMilePost"] = this.FacilityMilepost;
+                insp["Comments"] = this.Comments;
+
+                op.Modify(insp);
+                op.Execute();
+                Project.Current.SaveEditsAsync();
+            });
+            return t;
+        }
+
         //Validation
         public bool IsCountyFipsComplete()
         {

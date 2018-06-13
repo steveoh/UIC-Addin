@@ -32,8 +32,6 @@ namespace UIC_Edit_Workflow
         }
 
         private string _selectedInspectionId;
-        private long _selectedOid;
-        private StandaloneTable _storeFeature = null;
         private bool _isDirty;
 
         private string _wellFk;
@@ -68,7 +66,7 @@ namespace UIC_Edit_Workflow
                     UpdateModel(_selectedInspectionId);
             }
         }
-
+        private long _selectedOid;
         public long SelectedOid
         {
             get
@@ -81,7 +79,7 @@ namespace UIC_Edit_Workflow
                 _selectedOid = value;
             }
         }
-
+        private StandaloneTable _storeFeature;
         public StandaloneTable StoreFeature
         {
             get
@@ -232,6 +230,7 @@ namespace UIC_Edit_Workflow
 
                 if (inspectionId == null || inspectionId == String.Empty)
                 {
+                    this.SelectedOid = -1;
                     this.WellFk = "";
                     this.InspectionId = "";
                     this.Inspector = "";

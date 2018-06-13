@@ -195,23 +195,25 @@ namespace UIC_Edit_Workflow
         }
         public void SaveDirtyModels()
         {
-            wellInspectionModel.SaveChanges();
-            //bool modelDirty = wellInspectionModel.HasModelChanged();
-            //if (modelDirty)
-            //{
-            //    wellInspectionModel.SaveChanges();
-            //}
-            //bool areAllModelsClean = true;
-            //foreach (ValidatableBindableBase dataModel in allModels)
-            //{
-            //    if (dataModel.HasModelChanged())
-            //    {
-            //        areAllModelsClean = false;
-            //    }
-            //}
-            //this.AreModelsDirty = !areAllModelsClean;
-
-            //CheckTaskItems(TableTasks[0]);
+            //wellInspectionModel.SaveChanges();
+       
+            foreach (ValidatableBindableBase dataModel in allModels)
+            {
+                if (dataModel.HasModelChanged())
+                {
+                    if (dataModel.GetType().ToString() == "UIC_Edit_Workflow.FacilityModel")
+                    {
+                        System.Diagnostics.Debug.WriteLine(facilityModel.FacilityAddress);
+                        facilityModel.SaveChanges();
+                    }
+                    else
+                    {
+                        IWorkTaskModel m = (IWorkTaskModel)dataModel;
+                        m.SaveChanges();
+                        System.Diagnostics.Debug.WriteLine(m.GetType());
+                    }
+                }
+            }
         }
         public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
         {

@@ -9,6 +9,7 @@ namespace UIC_Edit_Workflow
     interface IWorkTaskModel
     {
         Task UpdateModel(string controllingId);
+        Task SaveChanges();
         void ControllingIdChangedHandler(string oldGuid, string newGuid);
     }
 }

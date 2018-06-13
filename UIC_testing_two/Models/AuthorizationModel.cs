@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 using ArcGIS.Desktop.Editing;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -68,6 +69,37 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _selectedAuthId, value);
                 if (_selectedAuthId != null)
                     UpdateModel(_selectedAuthId);
+            }
+        }
+        private long _selectedOid;
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
+            }
+        }
+        private StandaloneTable _storeFeature;
+        public StandaloneTable StoreFeature
+        {
+            get
+            {
+                if (_storeFeature == null)
+                {
+
+                    _storeFeature = QueuedTask.Run(() =>
+                    {
+                        var map = MapView.Active.Map;
+                        var feature = (StandaloneTable)map.FindStandaloneTables("UICAuthorization").First();
+                        return feature as StandaloneTable;
+                    }).Result;
+                }
+                return _storeFeature;
             }
         }
 
@@ -210,6 +242,7 @@ namespace UIC_Edit_Workflow
 
                 if (authId == null || authId == String.Empty)
                 {
+                    this.SelectedOid = -1;
                     this.AuthId = "";
                     this.AuthType = "";
                     this.SectorType = "";
@@ -230,6 +263,7 @@ namespace UIC_Edit_Workflow
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
                         {
+                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                             this.AuthId = Convert.ToString(row["AuthorizationID"]);
                             this.AuthType = Convert.ToString(row["AuthorizationType"]);
                             this.SectorType = Convert.ToString(row["OwnerSectorType"]);
@@ -270,6 +304,31 @@ namespace UIC_Edit_Workflow
 
         }
 
+        public Task SaveChanges()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update Feature";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(StoreFeature, oidSet);
+
+                insp["AuthorizationID"] = this.AuthId;
+                insp["AuthorizationType"] = this.AuthType;
+                insp["OwnerSectorType"] = this.SectorType;
+                insp["StartDate"] = this.StartDate;
+                insp["ExpirationDate"] = this.ExpirationDate;
+                insp["Comments"] = this.Comments;
+
+                op.Modify(insp);
+                op.Execute();
+                Project.Current.SaveEditsAsync();
+            });
+            return t;
+        }
         public async void AddNew(string facilityGuid, string countyFips)
         {
             await QueuedTask.Run(() =>

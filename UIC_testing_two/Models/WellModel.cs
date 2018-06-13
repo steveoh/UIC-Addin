@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Cryptography;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -81,6 +82,37 @@ namespace UIC_Edit_Workflow
 
                 //   OnPropertyChanged();
                 //}
+            }
+        }
+        private long _selectedOid;
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
+            }
+        }
+        private FeatureLayer _storeFeature;
+        public FeatureLayer StoreFeature
+        {
+            get
+            {
+                if (_storeFeature == null)
+                {
+
+                    _storeFeature = QueuedTask.Run(() =>
+                    {
+                        var map = MapView.Active.Map;
+                        var feature = (FeatureLayer)map.FindLayers("UICWell").First();
+                        return feature as FeatureLayer;
+                    }).Result;
+                }
+                return _storeFeature;
             }
         }
 
@@ -269,6 +301,7 @@ namespace UIC_Edit_Workflow
 
                 if (wellId == null || wellId == String.Empty)
                 {
+                    this.SelectedOid = -1;
                     this.WellId = "";
                     this.WellName = "";
                     this.WellClass = "";
@@ -292,6 +325,7 @@ namespace UIC_Edit_Workflow
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
                         {
+                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                             this.WellId = Convert.ToString(row["WellID"]);
                             this.WellName = Convert.ToString(row["WellName"]);
                             this.WellClass = Convert.ToString(row["WellClass"]);
@@ -307,6 +341,33 @@ namespace UIC_Edit_Workflow
             });
             LoadHash = calculateFieldHash();
             WellChanged(oldWellGuid, this.WellGuid);
+        }
+
+        public Task SaveChanges()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update Feature";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(StoreFeature, oidSet);
+
+                insp["WellName"] = this.WellName;
+                insp["WellClass"] = this.WellClass;
+                insp["WellSubClass"] = this.WellSubClass;
+                insp["HighPriority"] = this.HighPriority;
+                insp["WellSWPZ"] = this.WellSwpz;
+                insp["LocationMethod"] = this.LocationMethod;
+                insp["LocationAccuracy"] = this.LocationAccuracy;
+
+                op.Modify(insp);
+                op.Execute();
+                Project.Current.SaveEditsAsync();
+            });
+            return t;
         }
 
         public async void AddNew(long objectId, string facilityGuid, string countyFips)
@@ -377,38 +438,6 @@ namespace UIC_Edit_Workflow
             return sb.ToString();
         }
 
-        //private string calculateFieldHash()
-        //{
-        //    string input = fieldValueString();
-        //    // step 1, calculate MD5 hash from input
-
-        //    MD5 md5 = MD5.Create();
-
-        //    byte[] inputBytes = Encoding.ASCII.GetBytes(input);
-
-        //    byte[] hash = md5.ComputeHash(inputBytes);
-
-        //    // step 2, convert byte array to hex string
-
-        //    StringBuilder sb = new StringBuilder();
-
-        //    for (int i = 0; i < hash.Length; i++)
-
-        //    {
-
-        //        sb.Append(hash[i].ToString("X2"));
-
-        //    }
-
-        //    return sb.ToString();
-
-        //}
-
-        //public bool HasModelChanged()
-        //{
-        //    return LoadHash.Equals(calculateFieldHash());
-        //}
-
         //Events
         public async void ControllingIdChangedHandler(string oldId, string facGuid)
         {
@@ -425,6 +454,7 @@ namespace UIC_Edit_Workflow
             }
 
         }
+
 
     }
 }

@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 using ArcGIS.Desktop.Editing;
+using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
@@ -31,7 +32,6 @@ namespace UIC_Edit_Workflow
             _isDirty = false;
         }
         private string _selectedInspectionId;
-        private StandaloneTable _storeFeature = null;
 
         private string _facilityFk;
         private string _inspectionId;
@@ -72,6 +72,20 @@ namespace UIC_Edit_Workflow
                     UpdateModel(_selectedInspectionId);
             }
         }
+        private long _selectedOid;
+        public long SelectedOid
+        {
+            get
+            {
+                return _selectedOid;
+            }
+
+            set
+            {
+                _selectedOid = value;
+            }
+        }
+        private StandaloneTable _storeFeature = null;
         public StandaloneTable StoreFeature
         {
             get
@@ -214,6 +228,7 @@ namespace UIC_Edit_Workflow
 
                 if (inspectionId == null || inspectionId == String.Empty)
                 {
+                    this.SelectedOid = -1;
                     this.FacilityFk = "";
                     this.InspectionId = "";
                     this.Inspector = "";
@@ -234,6 +249,7 @@ namespace UIC_Edit_Workflow
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
                         {
+                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
                             this.FacilityFk = Convert.ToString(row["Facility_FK"]);
                             this.InspectionId = Convert.ToString(row["GUID"]);
                             this.Inspector = Convert.ToString(row["Inspector"]);
@@ -293,6 +309,30 @@ namespace UIC_Edit_Workflow
                 _inspectionIds.Add(guidString);
                 SelectedInspectionId = guidString;
             });
+        }
+        public Task SaveChanges()
+        {
+            Task t = QueuedTask.Run(() =>
+            {
+                //Create list of oids to update
+                var oidSet = new List<long>() { SelectedOid };
+                //Create edit operation and update
+                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                op.Name = "Update Feature";
+                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                insp.Load(StoreFeature, oidSet);
+
+                insp["Well_FK"] = this.FacilityFk;
+                insp["Inspector"] = this.InspectionId;
+                insp["InspectionType"] = this.InspectionType;
+                insp["InspectionDate"] = this.InspectionDate;
+                insp["Comments"] = this.Comments;
+
+                op.Modify(insp);
+                op.Execute();
+                Project.Current.SaveEditsAsync();
+            });
+            return t;
         }
     }
 }

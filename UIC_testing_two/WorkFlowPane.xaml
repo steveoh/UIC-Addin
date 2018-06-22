@@ -76,11 +76,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1">
                 <Button Margin="5" Command="{Binding AssignId}" ToolTip="Create Facility ID" Content="Assign ID"  Visibility="{Binding EmptyFips, Converter={StaticResource boolToVis}}"/>
-                <Button Margin="5" Command="{Binding SelectUicAndZoom}" ToolTip="Select and Zoom" Content="Zoom Facility">
-                    <!--<i:Interaction.Behaviors>
-                        <ui:WorkFlowBehaviors NeedsSave="{Binding ModelDirty}"/>
-                    </i:Interaction.Behaviors>-->
-                </Button>
+                <Button Margin="5" Command="{Binding SelectUicAndZoom}" ToolTip="Select and Zoom" Content="Zoom Facility"/>
                 <Button Margin="5" Command="{Binding GetSelectedFacility}" ToolTip="Use Selected Facility" Content="Use Selection"/>
             </StackPanel>
                 
@@ -89,7 +85,7 @@
             <TreeView ItemsSource="{Binding TableTasks}" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                 <TreeView.ItemContainerStyle>
                     <!-- 
-                            This Style binds a TreeViewItem to a PersonViewModel. 
+                            This Style binds a TreeViewItem to a WorkTask. 
                         -->
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />

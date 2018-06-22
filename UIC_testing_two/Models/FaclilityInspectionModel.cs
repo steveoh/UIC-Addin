@@ -318,12 +318,12 @@ namespace UIC_Edit_Workflow
                 var oidSet = new List<long>() { SelectedOid };
                 //Create edit operation and update
                 var op = new ArcGIS.Desktop.Editing.EditOperation();
-                op.Name = "Update Feature";
+                op.Name = "Update Facility";
                 var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
                 insp.Load(StoreFeature, oidSet);
 
                 insp["Well_FK"] = this.FacilityFk;
-                insp["Inspector"] = this.InspectionId;
+                insp["Inspector"] = this.Inspector;
                 insp["InspectionType"] = this.InspectionType;
                 insp["InspectionDate"] = this.InspectionDate;
                 insp["Comments"] = this.Comments;

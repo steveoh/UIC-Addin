@@ -23,10 +23,10 @@ namespace UIC_Edit_Workflow
     {
         private const string _dockPaneID = "UIC_Edit_Workflow_WorkFlowPane";
         private ObservableCollection<WorkTask> _workTasks;
-        private int selectedUicId;
         private List<IWorkTaskModel> facilityControlledModels;
         private List<IWorkTaskModel> wellControlledModels;
         private List<BindableBase> allModels;
+        // Model instances
         public FacilityModel facilityModel = FacilityModel.Instance;
         public WellModel wellModel = WellModel.Instance;
         public AuthorizationModel authModel =   AuthorizationModel.Instance;
@@ -53,36 +53,40 @@ namespace UIC_Edit_Workflow
                 propertyModel.PropertyChanged += this.CheckTaskItemsOnChange;
                 allModels.Add(((BindableBase)model));
             }
-
             facilityModel.PropertyChanged += this.CheckTaskItemsOnChange;
             allModels.Add((BindableBase)facilityModel);
+
             _workTasks = new ObservableCollection<WorkTask>();
             WorkTask uicTaskRoot = new WorkTask("esri_editing_AttributesDockPane") { Title = "UIC Facility Workflow"};
+            // Facility Task
             WorkTask facilityWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Facility"};
             facilityWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Add New Geometry"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.IsCountyFipsComplete) { Title = "Add county FIPS"});
             facilityWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityModel.AreAttributesComplete) { Title = "Populate attributes"});
-
+            // Facility Task: Facility Inspection 
             WorkTask facilityInspectionWork = new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor") { Title = "Inspection" };
             facilityInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_FacilityAttributeEditor", facilityInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
             facilityWork.Items.Add(facilityInspectionWork);
-            uicTaskRoot.Items.Add(facilityWork);
+            uicTaskRoot.Items.Add(facilityWork); // Add task to root task
 
+            // Well Task
             WorkTask wellWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Wells"};
             wellWork.Items.Add(new WorkTask("esri_editing_CreateFeaturesDockPane") { Title = "Add New Geometry" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellNameCorrect) { Title = "Well Name correct" });
             wellWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellModel.IsWellAttributesComplete) { Title = "Populate attributes"});
-
+            // Well Task: Well Inspection
             WorkTask wellInspectionWork = new WorkTask("UIC_Edit_Workflow_WellAttributeEditor") { Title = "Inspection" };
             wellInspectionWork.Items.Add(new WorkTask("UIC_Edit_Workflow_WellAttributeEditor", wellInspectionModel.IsInspectionAttributesComplete) { Title = "Populate attributes" });
             wellWork.Items.Add(wellInspectionWork);
-            uicTaskRoot.Items.Add(wellWork);
+            uicTaskRoot.Items.Add(wellWork); // Add task to root task
 
+            // Authorization Task
             WorkTask authWork = new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor") { Title = "Authorizations" };
             authWork.Items.Add(new WorkTask("UIC_Edit_Workflow_AuthAttributeEditor", () => true) { Title = "Populate attributes" });
-            uicTaskRoot.Items.Add(authWork);
-
+            uicTaskRoot.Items.Add(authWork); // Add task to root task
+            // Add root task to work tasks
             _workTasks.Add(uicTaskRoot);
+            //Init the dockpanes in the framework. Loads data before and refernces.
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_WellAttributeEditor");
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_FacilityAttributeEditor");
             FrameworkApplication.DockPaneManager.Find("UIC_Edit_Workflow_AuthAttributeEditor");
@@ -95,15 +99,6 @@ namespace UIC_Edit_Workflow
             WorkFlowPaneViewModel pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID) as WorkFlowPaneViewModel;
             BasicFeatureLayer facFeature = QueuedTask.Run(() =>
             {
-                //if (MapView.Active.GetSelectedLayers().Count == 0)
-                //{
-                //    MessageBox.Show("Select a feature class from the Content 'Table of Content' first.");
-                //    Utils.RunOnUiThread(() => {
-                //        var contentsPane = FrameworkApplication.DockPaneManager.Find("esri_core_contentsDockPane");
-                //        contentsPane.Activate();
-                //    });
-                //    return;
-                //}
                 FeatureLayer uicFacilities = (FeatureLayer)MapView.Active.Map.FindLayers("UICFacility").First();
                 var layerTable = uicFacilities.GetTable();
                 return uicFacilities as BasicFeatureLayer;
@@ -111,7 +106,7 @@ namespace UIC_Edit_Workflow
             return facFeature;
         }
 
-        //  behavior test method
+        //  Behavior test method
         public void ChangeStuff()
         {
             SetTaskItemsComplete(TableTasks[0]);
@@ -195,30 +190,18 @@ namespace UIC_Edit_Workflow
         }
         public void SaveDirtyModels()
         {
-            //wellInspectionModel.SaveChanges();
-       
             foreach (ValidatableBindableBase dataModel in allModels)
             {
                 if (dataModel.HasModelChanged())
                 {
-                    if (dataModel.GetType().ToString() == "UIC_Edit_Workflow.FacilityModel")
-                    {
-                        System.Diagnostics.Debug.WriteLine(facilityModel.FacilityAddress);
-                        facilityModel.SaveChanges();
-                    }
-                    else
-                    {
-                        IWorkTaskModel m = (IWorkTaskModel)dataModel;
-                        m.SaveChanges();
-                        System.Diagnostics.Debug.WriteLine(m.GetType());
-                    }
+                    IWorkTaskModel m = (IWorkTaskModel)dataModel;
+                    m.SaveChanges();
+                    System.Diagnostics.Debug.WriteLine(m.GetType());
                 }
             }
         }
         public void CheckTaskItemsOnChange (object model, PropertyChangedEventArgs propertyInfo)
         {
-            //bool modelDirty = wellModel.HasModelChanged();
-            //this.AreModelsDirty = modelDirty;
             bool areAllModelsClean = true;
             foreach (ValidatableBindableBase dataModel in allModels)
             {
@@ -445,11 +428,11 @@ namespace UIC_Edit_Workflow
         {
             get
             {
-                if (_newSelectionCmd == null)
+                if (_saveModelsCmd == null)
                 {
-                    _newSelectionCmd = new RelayCommand(() => SaveDirtyModels(), () => { return true; });
+                    _saveModelsCmd = new RelayCommand(() => SaveDirtyModels(), () => { return true; });
                 }
-                return _newSelectionCmd;
+                return _saveModelsCmd;
             }
         }
 
@@ -596,8 +579,6 @@ namespace UIC_Edit_Workflow
         }
 
     }
-
-
     /// <summary>
     /// Button implementation to show the DockPane.
     /// </summary>

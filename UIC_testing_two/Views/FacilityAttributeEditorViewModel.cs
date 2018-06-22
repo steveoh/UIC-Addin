@@ -15,22 +15,21 @@ namespace UIC_Edit_Workflow
         private const string _dockPaneID = "UIC_Edit_Workflow_FacilityAttributeEditor";
         private FacilityModel _facilityModel = FacilityModel.Instance;
         private FacilityInspectionModel _inspectionModel = FacilityInspectionModel.Instance;
-        //private FacilityModel uicModel = FacilityModel.Instance;
         protected FacilityAttributeEditorViewModel()
         {
         }
 
-    /// <summary>
-    /// Show the DockPane.
-    /// </summary>
-    internal static void Show()
-        {
-            DockPane pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID);
-            if (pane == null)
-                return;
+        /// <summary>
+        /// Show the DockPane.
+        /// </summary>
+        internal static void Show()
+            {
+                DockPane pane = FrameworkApplication.DockPaneManager.Find(_dockPaneID);
+                if (pane == null)
+                    return;
 
-            pane.Activate();
-        }
+                pane.Activate();
+            }
 
         /// <summary>
         /// Text shown near the top of the DockPane.
@@ -43,11 +42,6 @@ namespace UIC_Edit_Workflow
             {
                 SetProperty(ref _heading, value, () => Heading);
             }
-        }
-
-        public void SetFacility(string facilityId)
-        {
-            Heading = string.Format("{0} Attributes");
         }
 
         private RelayCommand _addNewInspection;

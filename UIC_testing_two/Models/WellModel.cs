@@ -22,41 +22,21 @@ namespace UIC_Edit_Workflow
         private static readonly WellModel instance = new WellModel();
         public const string ID_FIELD = "WellID";
         public event ControllingIdChangeDelegate WellChanged;
-        //private UICModel uicModel = null;
-        private bool _isDirty;
  
         private WellModel()
         {
-            //uicModel = UICModel.Instance;
-            //uicModel.FacilityChanged = new FacilityChangeDelegate(facChangeHandler);
             readOnlyWellIds = new ReadOnlyObservableCollection<string>(_facilityWellIds);
             Utils.RunOnUiThread(() =>
             {
                 BindingOperations.EnableCollectionSynchronization(readOnlyWellIds, lockCollection);
             });
-            _isDirty = false;
-            //LoadHash = calculateFieldHash();
-
         }
 
-        private string _wellId;
-        private string _wellName;
-        private string _wellClass;
-        private string _wellSubClass;
-        private string _highPriority;
-        private string _wellSwpz;
-        private string _locationMethod;
-        private string _locationAccuracy;
-        private string _wellComments;
-        private string _guidValue;
-
+        // Fields Not yet used, but they will be used eventually
         private string _createdOn;
         private string _modifiedOn;
         private string _editedBy;
         private string _surfaceElevation;
-
-
-        private string selectedWellId;
 
         private readonly ObservableCollection<string> _facilityWellIds = new ObservableCollection<string>();
         private readonly ReadOnlyObservableCollection<string> readOnlyWellIds;
@@ -64,24 +44,19 @@ namespace UIC_Edit_Workflow
         #region properties
         public ReadOnlyObservableCollection<string> WellIds => readOnlyWellIds;
 
+        private string _selectedWellId;
         public string SelectedWellId
         {
             get
             {
-                return selectedWellId;
+                return _selectedWellId;
             }
 
             set
             {
-                SetProperty(ref selectedWellId, value);
-                if (selectedWellId != null)
-                   UpdateModel(selectedWellId);
-                //if (selectedWellId != value)
-                //{
-                //    selectedWellId = value;
-
-                //   OnPropertyChanged();
-                //}
+                SetProperty(ref _selectedWellId, value);
+                if (_selectedWellId != null)
+                   UpdateModel(_selectedWellId);
             }
         }
         private long _selectedOid;
@@ -125,6 +100,7 @@ namespace UIC_Edit_Workflow
         }
 
         #region tablefields
+        private string _wellId;
         [Required]
         public string WellId
         {
@@ -139,6 +115,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _wellName;
         [Required]
         [UicValidations(ErrorMessage = "{0} is not correct")]
         public string WellName
@@ -151,10 +128,10 @@ namespace UIC_Edit_Workflow
             set
             {
                 SetProperty(ref _wellName, value);
-                _isDirty = true;
             }
         }
 
+        private string _wellClass;
         [Required]
         public string WellClass
         {
@@ -169,6 +146,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _wellSubClass;
         [Required]
         public string WellSubClass
         {
@@ -183,6 +161,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _highPriority;
         [Required]
         public string HighPriority
         {
@@ -197,6 +176,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _wellSwpz;
         [Required]
         public string WellSwpz
         {
@@ -211,6 +191,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _locationMethod;
         [Required]
         public string LocationMethod
         {
@@ -226,6 +207,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _locationAccuracy;
         [Required]
         public string LocationAccuracy
         {
@@ -240,29 +222,31 @@ namespace UIC_Edit_Workflow
             }
         }
 
-        public string WellComments
+        private string _comments;
+        public string Comments
         {
             get
             {
-                return _wellComments;
+                return _comments;
             }
 
             set
             {
-                SetProperty(ref _wellComments, value);
+                SetProperty(ref _comments, value);
             }
         }
 
+        private string _wellGuid;
         public string WellGuid
         {
             get
             {
-                return _guidValue;
+                return _wellGuid;
             }
 
             set
             {
-                SetProperty(ref _guidValue, value);
+                SetProperty(ref _wellGuid, value);
             }
         }
 
@@ -275,12 +259,11 @@ namespace UIC_Edit_Workflow
             {
                 _facilityWellIds.Clear();
                 var map = MapView.Active.Map;
-                FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICWell").First();
                 QueryFilter qf = new QueryFilter()
                 {
                     WhereClause = string.Format("Facility_FK = '{0}'", facilityId)
                 };
-                using (RowCursor cursor = uicWells.Search(qf))
+                using (RowCursor cursor = StoreFeature.Search(qf))
                 {
                     while (cursor.MoveNext())
                     {
@@ -310,17 +293,16 @@ namespace UIC_Edit_Workflow
                     this.WellSwpz = "";
                     this.LocationMethod = "";
                     this.LocationAccuracy = "";
+                    this.Comments = "";
                     this.WellGuid = "";
                 }
                 else
                 {
-                    var map = MapView.Active.Map;
-                    FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICWell").First();
                     QueryFilter qf = new QueryFilter()
                     {
                         WhereClause = string.Format("WellID = '{0}'", wellId)
                     };
-                    using (RowCursor cursor = uicWells.Search(qf))
+                    using (RowCursor cursor = StoreFeature.Search(qf))
                     {
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
@@ -334,6 +316,7 @@ namespace UIC_Edit_Workflow
                             this.WellSwpz = Convert.ToString(row["WellSWPZ"]);
                             this.LocationMethod = Convert.ToString(row["LocationMethod"]);
                             this.LocationAccuracy = Convert.ToString(row["LocationAccuracy"]);
+                            this.Comments = Convert.ToString(row["Comments"]);
                             this.WellGuid = Convert.ToString(row["GUID"]);
                         }
                     }
@@ -380,9 +363,7 @@ namespace UIC_Edit_Workflow
                 var op = new ArcGIS.Desktop.Editing.EditOperation();
                 op.Name = "Update date";
                 var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
-                var map = MapView.Active.Map;
-                FeatureLayer uicWells = (FeatureLayer)map.FindLayers("UICWell").First();
-                insp.Load(uicWells, oidSet);
+                insp.Load(StoreFeature, oidSet);
 
                 long fips;
                 long.TryParse(countyFips, out fips);
@@ -405,7 +386,7 @@ namespace UIC_Edit_Workflow
             });
 
         }
-        //Validation 
+        #region validation 
         public bool IsWellAttributesComplete()
         {
             return !String.IsNullOrEmpty(this.WellId) &&
@@ -421,6 +402,7 @@ namespace UIC_Edit_Workflow
             bool isWellNameError = GetErrors("WellName") == null;
             return !String.IsNullOrEmpty(this.WellName) && isWellNameError;
         }
+        #endregion
 
         protected override string fieldValueString()
         {
@@ -433,12 +415,12 @@ namespace UIC_Edit_Workflow
             sb.Append(Convert.ToString(WellSwpz));
             sb.Append(Convert.ToString(LocationMethod));
             sb.Append(Convert.ToString(LocationAccuracy));
-            sb.Append(Convert.ToString(WellComments));
+            sb.Append(Convert.ToString(Comments));
             sb.Append(Convert.ToString(WellGuid));
             return sb.ToString();
         }
 
-        //Events
+        #region events
         public async void ControllingIdChangedHandler(string oldId, string facGuid)
         {
             await AddIdsForFacility(facGuid);
@@ -454,7 +436,6 @@ namespace UIC_Edit_Workflow
             }
 
         }
-
-
+        #endregion
     }
 }

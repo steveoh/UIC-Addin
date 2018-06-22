@@ -74,8 +74,7 @@ namespace UIC_Edit_Workflow
             {
                 if (_wellLayer == null)
                 {
-                    var map = MapView.Active.Map;
-                    _wellLayer = (FeatureLayer)map.FindLayers("UICWell").First();
+                    _wellLayer = _wellModel.StoreFeature;
                 }
 
                 long selectedId;

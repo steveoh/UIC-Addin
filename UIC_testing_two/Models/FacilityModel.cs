@@ -18,7 +18,7 @@ using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
-    class FacilityModel: ValidatableBindableBase
+    class FacilityModel: ValidatableBindableBase, IWorkTaskModel
     {
         private static readonly FacilityModel _instance = new FacilityModel();
         public const string ID_FIELD = "FacilityID";
@@ -27,24 +27,7 @@ namespace UIC_Edit_Workflow
 
         private FacilityModel()
         {
-            _isDirty = false;
-
         }
-
-        private bool _isDirty;
-        private string _uicFacilityId = "";
-        private string _facilityGuid;
-        private string _countyFips;
-        private string _naicsPrimary;
-        private string _facilityName = "";
-        private string _facilityAddress;
-        private string _facilityCity;
-        private string _facilityState;
-        private string _facilityZip;
-        private string _facilityMilepost;
-        private string _comments;
-
-        private bool _editReady;
 
         #region properties
         private long _selectedOid;
@@ -85,19 +68,9 @@ namespace UIC_Edit_Workflow
                 return _instance;
             }
         }
-        public bool IsDirty
-        {
-            get
-            {
-                return _isDirty;
-            }
 
-            set
-            {
-                SetProperty(ref _isDirty, value);
-            }
-        }
-
+        #region tablefields
+        private string _uicFacilityId = "";
         [Required]
         public string UicFacilityId
         {
@@ -111,6 +84,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _uicFacilityId, value);
             }
         }
+
+        private string _facilityGuid;
         [Required]
         public string FacilityGuid
         {
@@ -124,6 +99,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityGuid, value);
             }
         }
+
+        private string _countyFips;
         [Required]
         public string CountyFips
         {
@@ -137,6 +114,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _countyFips, value);
             }
         }
+
+        private string _naicsPrimary;
         [Required]
         public string NaicsPrimary
         {
@@ -150,6 +129,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _naicsPrimary, value);
             }
         }
+
+        private string _facilityName = "";
         [Required]
         [NameTest]
         public string FacilityName
@@ -162,9 +143,10 @@ namespace UIC_Edit_Workflow
             set
             {
                 SetProperty(ref _facilityName, value);
-                IsDirty = true;
             }
         }
+
+        private string _facilityAddress;
         [Required]
         public string FacilityAddress
         {
@@ -178,6 +160,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityAddress, value);
             }
         }
+
+        private string _facilityCity;
         [Required]
         public string FacilityCity
         {
@@ -191,6 +175,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityCity, value);
             }
         }
+
+        private string _facilityState;
         [Required]
         public string FacilityState
         {
@@ -204,6 +190,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityState, value);
             }
         }
+
+        private string _facilityZip;
         public string FacilityZip
         {
             get
@@ -216,6 +204,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityZip, value);
             }
         }
+
+        private string _facilityMilepost;
         public string FacilityMilepost
         {
             get
@@ -228,6 +218,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _facilityMilepost, value);
             }
         }
+
+        private string _comments;
         public string Comments
         {
             get
@@ -240,7 +232,8 @@ namespace UIC_Edit_Workflow
                 SetProperty(ref _comments, value);
             }
         }
-
+        #endregion
+        #endregion
         protected override string fieldValueString()
         {
             StringBuilder sb = new StringBuilder();
@@ -257,21 +250,7 @@ namespace UIC_Edit_Workflow
             sb.Append(Convert.ToString(Comments));
             return sb.ToString();
         }
-
-        public bool EditReady
-        {
-            get
-            {
-                return _editReady;
-            }
-
-            set
-            {
-                SetProperty(ref _editReady, value);
-            }
-        }
-        #endregion
-
+  
         public async Task UpdateModel(string facilityId)
         {
             if (this.UicFacilityId != facilityId)
@@ -280,12 +259,11 @@ namespace UIC_Edit_Workflow
                 await QueuedTask.Run(() =>
                 {
                     var map = MapView.Active.Map;
-                    FeatureLayer uicFacilities = (FeatureLayer)map.FindLayers("UICFacility").First();
                     QueryFilter qf = new QueryFilter()
                     {
                         WhereClause = string.Format("FacilityID = '{0}'", facilityId)
                     };
-                    using (RowCursor cursor = uicFacilities.Search(qf))
+                    using (RowCursor cursor = StoreFeature.Search(qf))
                     {
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
@@ -304,17 +282,7 @@ namespace UIC_Edit_Workflow
                             this.FacilityGuid = Convert.ToString(row["GUID"]);
                         }
                     }
-                    if (this.CountyFips.Length == 5)
-                    {
-                        this.EditReady = true;
-                    }
-                    else
-                    {
-                        this.EditReady = false;
-                    }
-                    this.IsDirty = false;
                 });
-                System.Diagnostics.Debug.WriteLine("uicmodel UpdateUicFacility");
                 LoadHash = calculateFieldHash();
                 FacilityChanged(oldFacId, this.FacilityGuid);
             }
@@ -360,5 +328,10 @@ namespace UIC_Edit_Workflow
             return !this.HasErrors;
         }
 
+        //Events
+        public async void ControllingIdChangedHandler(string oldId, string facGuid)
+        {
+            await UpdateModel(facGuid);
+        }
     }
 }

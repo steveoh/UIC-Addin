@@ -28,18 +28,7 @@ namespace UIC_Edit_Workflow
             {
                 BindingOperations.EnableCollectionSynchronization(readOnlyInspectionIds, lockCollection);
             });
-            _isDirty = false;
         }
-
-        private string _selectedInspectionId;
-        private bool _isDirty;
-
-        private string _wellFk;
-        private string _inspectionId;
-        private string _inspector;
-        private string _inspectionType;
-        private string _inspectionDate;
-        private string _comments;
 
         private string _createdOn;
         private string _modifiedOn;
@@ -52,6 +41,7 @@ namespace UIC_Edit_Workflow
         #region properties
         public ReadOnlyObservableCollection<string> InspectionIds => readOnlyInspectionIds;
 
+        private string _selectedInspectionId;
         public string SelectedInspectionId
         {
             get
@@ -107,6 +97,7 @@ namespace UIC_Edit_Workflow
         }
 
         #region tablefields
+        private string _wellFk;
         public string WellFk
         {
             get
@@ -120,6 +111,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _inspectionId;
         public string InspectionId
         {
             get
@@ -133,6 +125,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _inspector;
         public string Inspector
         {
             get
@@ -146,6 +139,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _inspectionType;
         public string InspectionType
         {
             get
@@ -156,10 +150,10 @@ namespace UIC_Edit_Workflow
             set
             {
                 SetProperty(ref _inspectionType, value);
-                _isDirty = true;
             }
         }
 
+        private string _inspectionDate;
         public string InspectionDate
         {
             get
@@ -173,6 +167,7 @@ namespace UIC_Edit_Workflow
             }
         }
 
+        private string _comments;
         public string Comments
         {
             get
@@ -187,6 +182,7 @@ namespace UIC_Edit_Workflow
         }
 
         #endregion // End tablefields
+        #endregion
         protected override string fieldValueString()
         {
             StringBuilder sb = new StringBuilder();
@@ -197,20 +193,17 @@ namespace UIC_Edit_Workflow
             sb.Append(Convert.ToString(Comments));
             return sb.ToString();
         }
-        #endregion
 
         public async Task AddIdsForFacility(string facilityId)
         {
             await QueuedTask.Run(() =>
             {
                 _inspectionIds.Clear();
-                var map = MapView.Active.Map;
-                StandaloneTable uicWells = (StandaloneTable)map.FindStandaloneTables("UICInspection").First();
                 QueryFilter qf = new QueryFilter()
                 {
                     WhereClause = string.Format("Well_FK = '{0}'", facilityId)
                 };
-                using (RowCursor cursor = uicWells.Search(qf))
+                using (RowCursor cursor = StoreFeature.Search(qf))
                 {
                     while (cursor.MoveNext())
                     {
@@ -240,13 +233,11 @@ namespace UIC_Edit_Workflow
                 }
                 else
                 {
-                    var map = MapView.Active.Map;
-                    StandaloneTable uicInspection = (StandaloneTable)map.FindStandaloneTables("UICInspection").First();
                     QueryFilter qf = new QueryFilter()
                     {
                         WhereClause = string.Format("GUID = '{0}'", inspectionId)
                     };
-                    using (RowCursor cursor = uicInspection.Search(qf))
+                    using (RowCursor cursor = StoreFeature.Search(qf))
                     {
                         bool hasRow = cursor.MoveNext();
                         using (Row row = cursor.Current)
@@ -277,16 +268,13 @@ namespace UIC_Edit_Workflow
         //Events
         public async void ControllingIdChangedHandler(string oldGuid, string newGuid)
         {
-            //System.Diagnostics.Debug.WriteLine($"Old id {oldId}, New Id {newId}");
             await AddIdsForFacility(newGuid);
             if (InspectionIds.Count == 0)
             {
-                //await UpdateUicWell(null);
                 SelectedInspectionId = String.Empty;
             }
             else
             {
-                //await UpdateUicWell(WellIds.First());
                 SelectedInspectionId = InspectionIds.First();
             }
 
@@ -299,7 +287,7 @@ namespace UIC_Edit_Workflow
                 //Create list of oids to update
                 var oidSet = new List<long>() { SelectedOid };
                 //Create edit operation and update
-                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                var op = new EditOperation();
                 op.Name = "Update Feature";
                 var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
                 insp.Load(StoreFeature, oidSet);

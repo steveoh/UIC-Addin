@@ -135,6 +135,7 @@
                   Grid.Row="1"
                   ResizeDirection="rows"
                   Height="5" Background="#FFFFFFFF"/>
+        <!--Inspection grid-->
         <Grid Margin="0,0,0,0" Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

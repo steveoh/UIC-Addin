@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Data;
 using System.ComponentModel.DataAnnotations;
 using ArcGIS.Desktop.Core;
+using ArcGIS.Desktop.Editing;
 
 namespace UIC_Edit_Workflow
 {
@@ -295,7 +296,7 @@ namespace UIC_Edit_Workflow
                 //Create list of oids to update
                 var oidSet = new List<long>() { SelectedOid };
                 //Create edit operation and update
-                var op = new ArcGIS.Desktop.Editing.EditOperation();
+                var op = new EditOperation();
                 op.Name = "Update Feature";
                 var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
                 insp.Load(StoreFeature, oidSet);

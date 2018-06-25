@@ -32,7 +32,7 @@ namespace UIC_Edit_Workflow
             });
         }
 
-        // Fields Not yet used, but they will be used eventually
+        // Fields not yet used, but they will be used eventually
         private string _createdOn;
         private string _modifiedOn;
         private string _editedBy;
@@ -426,12 +426,10 @@ namespace UIC_Edit_Workflow
             await AddIdsForFacility(facGuid);
             if (WellIds.Count == 0)
             {
-                //await UpdateUicWell(null);
                 SelectedWellId = String.Empty;
             }
             else
             {
-                //await UpdateUicWell(WellIds.First());
                 SelectedWellId = WellIds.First();
             }
 

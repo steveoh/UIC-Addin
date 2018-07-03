@@ -1,32 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
+using ArcGIS.Core.Data;
+using ArcGIS.Desktop.Core;
+using ArcGIS.Desktop.Editing;
+using ArcGIS.Desktop.Editing.Attributes;
 using ArcGIS.Desktop.Framework.Threading.Tasks;
 using ArcGIS.Desktop.Mapping;
-using ArcGIS.Core.Data;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.ComponentModel.DataAnnotations;
-using ArcGIS.Desktop.Editing;
-using ArcGIS.Desktop.Core;
 
 namespace UIC_Edit_Workflow
 {
-    class WellInspectionModel : ValidatableBindableBase, IWorkTaskModel
+    internal class WellInspectionModel : ValidatableBindableBase, IWorkTaskModel
     {
-        private readonly object lockCollection = new object();
-        private static readonly WellInspectionModel instance = new WellInspectionModel();
-
-        private WellInspectionModel()
+        private readonly object _lockCollection = new object();
+        public WellInspectionModel()
         {
-            readOnlyInspectionIds = new ReadOnlyObservableCollection<string>(_inspectionIds);
+            InspectionIds = new ReadOnlyObservableCollection<string>(_inspectionIds);
             Utils.RunOnUiThread(() =>
             {
-                BindingOperations.EnableCollectionSynchronization(readOnlyInspectionIds, lockCollection);
+                BindingOperations.EnableCollectionSynchronization(InspectionIds, _lockCollection);
             });
         }
 
@@ -36,39 +32,26 @@ namespace UIC_Edit_Workflow
 
 
         private readonly ObservableCollection<string> _inspectionIds = new ObservableCollection<string>();
-        private readonly ReadOnlyObservableCollection<string> readOnlyInspectionIds;
 
-        #region properties
-        public ReadOnlyObservableCollection<string> InspectionIds => readOnlyInspectionIds;
+        public ReadOnlyObservableCollection<string> InspectionIds { get; }
 
         private string _selectedInspectionId;
         public string SelectedInspectionId
         {
-            get
-            {
-                return _selectedInspectionId;
-            }
-
+            get => _selectedInspectionId;
             set
             {
                 SetProperty(ref _selectedInspectionId, value);
                 if (_selectedInspectionId != null)
+                {
+                    // TODO: change to method
                     UpdateModel(_selectedInspectionId);
+                }
             }
         }
-        private long _selectedOid;
-        public long SelectedOid
-        {
-            get
-            {
-                return _selectedOid;
-            }
 
-            set
-            {
-                _selectedOid = value;
-            }
-        }
+        public long SelectedOid { get; set; }
+
         private StandaloneTable _storeFeature;
         public StandaloneTable StoreFeature
         {
@@ -80,117 +63,66 @@ namespace UIC_Edit_Workflow
                     _storeFeature = QueuedTask.Run(() =>
                     {
                         var map = MapView.Active.Map;
-                        var feature = (StandaloneTable)map.FindStandaloneTables("UICInspection").First();
-                        return feature as StandaloneTable;
+                        var feature = map.FindStandaloneTables("UICInspection").First();
+
+                        return feature;
                     }).Result;
                 }
                 return _storeFeature;
             }
         }
 
-        public static WellInspectionModel Instance
-        {
-            get
-            {
-                return instance;
-            }
-        }
-
-        #region tablefields
         private string _wellFk;
         public string WellFk
         {
-            get
-            {
-                return _wellFk;
-            }
-
-            set
-            {
-                SetProperty(ref _wellFk, value);
-            }
+            get => _wellFk;
+            set => SetProperty(ref _wellFk, value);
         }
 
         private string _inspectionId;
         public string InspectionId
         {
-            get
-            {
-                return _inspectionId;
-            }
-
-            set
-            {
-                SetProperty(ref _inspectionId, value);
-            }
+            get => _inspectionId;
+            set => SetProperty(ref _inspectionId, value);
         }
 
         private string _inspector;
         public string Inspector
         {
-            get
-            {
-                return _inspector;
-            }
-
-            set
-            {
-                SetProperty(ref _inspector, value);
-            }
+            get => _inspector;
+            set => SetProperty(ref _inspector, value);
         }
 
         private string _inspectionType;
         public string InspectionType
         {
-            get
-            {
-                return _inspectionType;
-            }
-
-            set
-            {
-                SetProperty(ref _inspectionType, value);
-            }
+            get => _inspectionType;
+            set => SetProperty(ref _inspectionType, value);
         }
 
         private string _inspectionDate;
         public string InspectionDate
         {
-            get
-            {
-                return _inspectionDate;
-            }
-
-            set
-            {
-                SetProperty(ref _inspectionDate, value);
-            }
+            get => _inspectionDate;
+            set => SetProperty(ref _inspectionDate, value);
         }
 
         private string _comments;
         public string Comments
         {
-            get
-            {
-                return _comments;
-            }
-
-            set
-            {
-                SetProperty(ref _comments, value);
-            }
+            get => _comments;
+            set => SetProperty(ref _comments, value);
         }
 
-        #endregion // End tablefields
-        #endregion
-        protected override string fieldValueString()
+        protected override string FieldValueString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(Convert.ToString(InspectionId));
             sb.Append(Convert.ToString(Inspector));
             sb.Append(Convert.ToString(InspectionType));
             sb.Append(Convert.ToString(InspectionDate));
             sb.Append(Convert.ToString(Comments));
+
             return sb.ToString();
         }
 
@@ -199,15 +131,15 @@ namespace UIC_Edit_Workflow
             await QueuedTask.Run(() =>
             {
                 _inspectionIds.Clear();
-                QueryFilter qf = new QueryFilter()
+                var qf = new QueryFilter
                 {
-                    WhereClause = string.Format("Well_FK = '{0}'", facilityId)
+                    WhereClause = $"Well_FK = '{facilityId}'"
                 };
-                using (RowCursor cursor = StoreFeature.Search(qf))
+                using (var cursor = StoreFeature.Search(qf))
                 {
                     while (cursor.MoveNext())
                     {
-                        using (Row row = cursor.Current)
+                        using (var row = cursor.Current)
                         {
                             _inspectionIds.Add(Convert.ToString(row["GUID"]));
                         }
@@ -220,50 +152,50 @@ namespace UIC_Edit_Workflow
         {
             await QueuedTask.Run(() =>
             {
-
-                if (inspectionId == null || inspectionId == String.Empty)
+                if (string.IsNullOrEmpty(inspectionId))
                 {
-                    this.SelectedOid = -1;
-                    this.WellFk = "";
-                    this.InspectionId = "";
-                    this.Inspector = "";
-                    this.InspectionType = "";
-                    this.InspectionDate = "";
-                    this.Comments = "";
+                    SelectedOid = -1;
+                    WellFk = "";
+                    InspectionId = "";
+                    Inspector = "";
+                    InspectionType = "";
+                    InspectionDate = "";
+                    Comments = "";
                 }
                 else
                 {
-                    QueryFilter qf = new QueryFilter()
+                    var qf = new QueryFilter
                     {
-                        WhereClause = string.Format("GUID = '{0}'", inspectionId)
+                        WhereClause = $"GUID = '{inspectionId}'"
                     };
-                    using (RowCursor cursor = StoreFeature.Search(qf))
+                    using (var cursor = StoreFeature.Search(qf))
                     {
-                        bool hasRow = cursor.MoveNext();
-                        using (Row row = cursor.Current)
+                        var hasRow = cursor.MoveNext();
+                        using (var row = cursor.Current)
                         {
-                            this.SelectedOid = Convert.ToInt64(row["OBJECTID"]);
-                            this.WellFk = Convert.ToString(row["Well_FK"]);
-                            this.InspectionId = Convert.ToString(row["GUID"]);
-                            this.Inspector = Convert.ToString(row["Inspector"]);
-                            this.InspectionType = Convert.ToString(row["InspectionType"]);
-                            this.InspectionDate = Convert.ToString(row["InspectionDate"]);
-                            this.Comments = Convert.ToString(row["Comments"]);
+                            SelectedOid = Convert.ToInt64(row["OBJECTID"]);
+                            WellFk = Convert.ToString(row["Well_FK"]);
+                            InspectionId = Convert.ToString(row["GUID"]);
+                            Inspector = Convert.ToString(row["Inspector"]);
+                            InspectionType = Convert.ToString(row["InspectionType"]);
+                            InspectionDate = Convert.ToString(row["InspectionDate"]);
+                            Comments = Convert.ToString(row["Comments"]);
                         }
                     }
                 }
             });
-            LoadHash = calculateFieldHash();
+
+            LoadHash = CalculateFieldHash();
         }
 
         public bool IsInspectionAttributesComplete()
         {
-            return !String.IsNullOrEmpty(this.WellFk) &&
-                   !String.IsNullOrEmpty(this.InspectionId) &&
-                   !String.IsNullOrEmpty(this.Inspector) &&
-                   !String.IsNullOrEmpty(this.InspectionDate) &&
-                   !String.IsNullOrEmpty(this.InspectionType) &&
-                   !String.IsNullOrEmpty(this.Comments);
+            return !string.IsNullOrEmpty(WellFk) &&
+                   !string.IsNullOrEmpty(InspectionId) &&
+                   !string.IsNullOrEmpty(Inspector) &&
+                   !string.IsNullOrEmpty(InspectionDate) &&
+                   !string.IsNullOrEmpty(InspectionType) &&
+                   !string.IsNullOrEmpty(Comments);
         }
         //Events
         public async void ControllingIdChangedHandler(string oldGuid, string newGuid)
@@ -271,7 +203,7 @@ namespace UIC_Edit_Workflow
             await AddIdsForFacility(newGuid);
             if (InspectionIds.Count == 0)
             {
-                SelectedInspectionId = String.Empty;
+                SelectedInspectionId = string.Empty;
             }
             else
             {
@@ -282,45 +214,53 @@ namespace UIC_Edit_Workflow
 
         public Task SaveChanges()
         {
-            Task t = QueuedTask.Run(() =>
+            return QueuedTask.Run(() =>
             {
                 //Create list of oids to update
-                var oidSet = new List<long>() { SelectedOid };
+                var oidSet = new List<long>
+                {
+                    SelectedOid
+                };
                 //Create edit operation and update
-                var op = new EditOperation();
-                op.Name = "Update Feature";
-                var insp = new ArcGIS.Desktop.Editing.Attributes.Inspector();
+                var op = new EditOperation
+                {
+                    Name = "Update Feature"
+                };
+                var insp = new Inspector();
                 insp.Load(StoreFeature, oidSet);
 
-                insp["Well_FK"] = this.WellFk;
-                insp["GUID"] = this.InspectionId;
-                insp["Inspector"] = this.InspectionId;
-                insp["InspectionType"] = this.InspectionType;
-                insp["InspectionDate"] = this.InspectionDate;
-                insp["Comments"] = this.Comments;
+                insp["Well_FK"] = WellFk;
+                insp["GUID"] = InspectionId;
+                insp["Inspector"] = InspectionId;
+                insp["InspectionType"] = InspectionType;
+                insp["InspectionDate"] = InspectionDate;
+                insp["Comments"] = Comments;
 
                 op.Modify(insp);
                 op.Execute();
                 Project.Current.SaveEditsAsync();
             });
-            return t;
         }
 
         public async void AddNew(string facilityGuid)
         {
             await QueuedTask.Run(() =>
             {
-                Guid newGuid = Guid.NewGuid();
+                var newGuid = Guid.NewGuid();
                 // Create dictionary of attribute names and values
-                var attributes = new Dictionary<string, object>();
-                attributes.Add("Well_FK", facilityGuid);
-                attributes.Add("GUID", newGuid);
+                var attributes = new Dictionary<string, object>
+                {
+                    {"Well_FK", facilityGuid},
+                    { "GUID", newGuid}
+                };
 
-                var createFeatures = new EditOperation();
-                createFeatures.Name = "Create Features";
+                var createFeatures = new EditOperation
+                {
+                    Name = "Create Features"
+                };
                 createFeatures.Create(StoreFeature, attributes);
                 createFeatures.Execute();
-                string guidString = "{" + newGuid.ToString().ToUpper() + "}";
+                var guidString = "{" + newGuid.ToString().ToUpper() + "}";
                 _inspectionIds.Add(guidString);
                 SelectedInspectionId = guidString;
             });
